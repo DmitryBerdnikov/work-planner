@@ -1,0 +1,9 @@
+---
+description: Backend API code style (apps/api)
+globs: "apps/api/**/*.ts"
+alwaysApply: false
+---
+
+# Code style (backend)
+
+Read and follow [docs/code-style/backend/backend.md](../../docs/code-style/backend/backend.md).

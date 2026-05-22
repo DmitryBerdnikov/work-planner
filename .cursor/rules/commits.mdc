@@ -1,0 +1,10 @@
+---
+description: Git commit message conventions
+alwaysApply: false
+---
+
+# Commits
+
+When creating git commits, read and follow [docs/09-commit-conventions.md](../../docs/09-commit-conventions.md).
+
+Prefixes: `chore`, `bugfix`, `feature` only.

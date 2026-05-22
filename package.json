@@ -1,0 +1,31 @@
+{
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.17.0",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --recursive --filter @work-planner/api --filter @work-planner/web dev",
+    "build": "pnpm --recursive --sort build",
+    "prepare:shared": "pnpm --filter @work-planner/shared build",
+    "test": "pnpm prepare:shared && pnpm --recursive --if-present test",
+    "typecheck": "pnpm prepare:shared && pnpm --recursive --if-present typecheck",
+    "lint": "eslint .",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^4.0.0"
+  }
+}

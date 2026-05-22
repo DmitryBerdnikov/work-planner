@@ -1,0 +1,10 @@
+---
+description: Frontend app code style (apps/web, non-React specifics)
+globs: "apps/web/**/*.{ts,tsx}"
+alwaysApply: false
+---
+
+# Code style (frontend)
+
+Read and follow [docs/code-style/frontend/frontend.md](../../docs/code-style/frontend/frontend.md).
+For `.tsx` files read and follow [docs/code-style/frontend/react.md](../../docs/code-style/frontend/react.md).
