@@ -50,6 +50,14 @@ export const attachSession: MiddlewareHandler<AppBindings> = async (c, next) => 
   await next();
 };
 
+export const requireSession: MiddlewareHandler<AppBindings> = async (c, next) => {
+  if (!c.get("user")) {
+    return c.json({ error: "unauthorized" }, 401);
+  }
+
+  await next();
+};
+
 export const requireActiveProfile: MiddlewareHandler<AppBindings> = async (c, next) => {
   const user = c.get("user");
 

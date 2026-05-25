@@ -5,7 +5,7 @@ import { Button } from "@shared/ui/button";
 type RouteErrorCopy = {
   title: string;
   description: string;
-  action?: "auth";
+  action?: "auth" | "pending";
 };
 
 export const RouteError = ({ error, reset }: ErrorComponentProps) => {
@@ -25,7 +25,20 @@ export const RouteError = ({ error, reset }: ErrorComponentProps) => {
               Перейти ко входу
             </Link>
           )}
-          <Button className="flex-1" type="button" variant={action === "auth" ? "secondary" : "primary"} onClick={reset}>
+          {action === "pending" && (
+            <Link
+              to="/pending"
+              className="inline-flex min-h-11 flex-1 items-center justify-center rounded-full bg-primary px-5 text-sm font-bold text-primary-foreground transition active:scale-[0.98]"
+            >
+              Статус аккаунта
+            </Link>
+          )}
+          <Button
+            className="flex-1"
+            type="button"
+            variant={action ? "secondary" : "primary"}
+            onClick={reset}
+          >
             Повторить
           </Button>
         </div>
@@ -46,7 +59,8 @@ const getRouteErrorCopy = (error: unknown): RouteErrorCopy => {
   if (error instanceof ApiError && error.status === 403) {
     return {
       title: "Аккаунт ожидает активации",
-      description: "Профиль найден, но доступ к рабочим разделам еще не открыт. Активируйте пользователя в базе или проверьте статус профиля."
+      description: "Профиль найден, но доступ к рабочим разделам еще не открыт. Откройте страницу ожидания активации.",
+      action: "pending"
     };
   }
 

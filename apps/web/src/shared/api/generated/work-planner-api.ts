@@ -16,7 +16,7 @@ export type ApiError = {
   issues?: (unknown | null)[];
 };
 
-export type CurrentUserResponseUser = {
+export type CurrentUser = {
   /** @minLength 1 */
   id: string;
   email: string;
@@ -27,8 +27,35 @@ export type CurrentUserResponseUser = {
   emailVerified: boolean;
 };
 
-export type CurrentUserResponse = {
-  user: CurrentUserResponseUser;
+export type SessionResponseUser = {
+  /** @minLength 1 */
+  id: string;
+  email: string;
+  /** @minLength 1 */
+  name: string;
+  /** @nullable */
+  image?: string | null;
+  emailVerified: boolean;
+};
+
+export type SessionResponseProfileStatus = typeof SessionResponseProfileStatus[keyof typeof SessionResponseProfileStatus];
+
+
+export const SessionResponseProfileStatus = {
+  pending: 'pending',
+  active: 'active',
+  blocked: 'blocked',
+} as const;
+
+export type SessionResponseProfile = {
+  status: SessionResponseProfileStatus;
+  /** @nullable */
+  activatedAt: string | null;
+};
+
+export type SessionResponse = {
+  user: SessionResponseUser;
+  profile: SessionResponseProfile;
 };
 
 export type ClientCustomData = {[key: string]: unknown | null};
@@ -128,17 +155,17 @@ export const fetchHealth = async ( options?: RequestInit): Promise<HealthRespons
 
 
 
-export const getFetchCurrentUserUrl = () => {
+export const getFetchSessionUrl = () => {
 
 
 
 
-  return `/api/me`
+  return `/api/session`
 }
 
-export const fetchCurrentUser = async ( options?: RequestInit): Promise<CurrentUserResponse> => {
+export const fetchSession = async ( options?: RequestInit): Promise<SessionResponse> => {
 
-  return workPlannerApi<CurrentUserResponse>(getFetchCurrentUserUrl(),
+  return workPlannerApi<SessionResponse>(getFetchSessionUrl(),
   {
     ...options,
     method: 'GET'

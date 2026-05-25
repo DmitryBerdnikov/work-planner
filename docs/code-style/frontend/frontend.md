@@ -64,7 +64,8 @@ Applies to all files: `apps/web/*`.
 - Queries should live in `pages/` or `modules/<feature>/hooks/`, not deep inside `ui/`.
 - Put `queryKey` + `queryFn` together in `modules/<feature>/model/*-queries.ts` via `queryOptions` (not a separate keys-only file).
 - Invalidate feature cache through `useInvalidate*` hooks (or `invalidateX(queryClient)` for route loaders), not raw key arrays in UI code.
-- Prefetch in TanStack Router `loader` with `queryClient.ensureQueryData(...)`; use the same `queryOptions` as the page hook.
+- Prefetch in TanStack Router `loader` with `queryClient.prefetchQuery(...)`; use the same `queryOptions` as the page hook.
+- Session routing uses generated `fetchSession` in `app/route-guards.ts`: `401` → `/auth`, `pending`/`blocked` → `/pending`, `active` → app layout.
 - Shared `queryClient` lives in [query-client.ts](../../../apps/web/src/app/query-client.ts) and is passed to `createRouter` / `RouterProvider` context.
 - `queryKey` should use stable arrays; mutations should use `invalidateQueries` where needed.
 - Do not use the `void` operator to silence async work in frontend code. Prefer `await` in async handlers/callbacks or explicit error handling.

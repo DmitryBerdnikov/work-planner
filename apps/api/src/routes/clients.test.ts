@@ -40,10 +40,10 @@ describe("clients routes", () => {
     expect(response.status).toBe(403);
   });
 
-  it("returns current user for an active profile", async () => {
+  it("returns session for an active profile", async () => {
     seedProfile(activeUserId, "active@example.com", "active");
 
-    const response = await app.request("/api/me", {
+    const response = await app.request("/api/session", {
       headers: testHeaders(activeUserId)
     });
 
@@ -52,6 +52,24 @@ describe("clients routes", () => {
       user: {
         id: activeUserId,
         email: `${activeUserId}@example.com`
+      },
+      profile: {
+        status: "active"
+      }
+    });
+  });
+
+  it("returns session with pending status without requiring active profile", async () => {
+    seedProfile(pendingUserId, "pending@example.com", "pending");
+
+    const response = await app.request("/api/session", {
+      headers: testHeaders(pendingUserId)
+    });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      profile: {
+        status: "pending"
       }
     });
   });

@@ -5,11 +5,12 @@ import { clientsQueries, defaultClientsListParams } from "@modules/clients/model
 import { AuthPage } from "@pages/auth-page";
 import { ClientsPage } from "@pages/clients-page";
 import { DashboardPage } from "@pages/dashboard-page";
+import { PendingPage } from "@pages/pending-page";
 import { PlaceholderPage } from "@pages/placeholder-page";
 import { AppShell } from "@shared/ui/app-shell";
 import { queryClient } from "./query-client";
 import { RouteError } from "./route-error";
-import { redirectUnauthorized, requireActiveProfile } from "./route-guards";
+import { redirectAuthenticatedFromAuth, requireActiveProfile, requirePendingProfile } from "./route-guards";
 
 type RouterContext = {
   queryClient: QueryClient;
@@ -40,7 +41,18 @@ const indexRoute = createRoute({
 const authRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/auth",
+  beforeLoad: redirectAuthenticatedFromAuth,
   component: AuthPage
+});
+
+const pendingRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/pending",
+  beforeLoad: async () => {
+    const session = await requirePendingProfile();
+    return { session };
+  },
+  component: PendingPage
 });
 
 const calendarRoute = createRoute({
@@ -52,8 +64,13 @@ const calendarRoute = createRoute({
 const clientsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/clients",
-  loader: ({ context }) =>
-    redirectUnauthorized(context.queryClient.ensureQueryData(clientsQueries.list(defaultClientsListParams))),
+  loader: async ({ context }) => {
+    try {
+      await context.queryClient.prefetchQuery(clientsQueries.list(defaultClientsListParams));
+    } catch {
+      // Active-only route: auth/profile failures are handled in beforeLoad.
+    }
+  },
   component: ClientsPage
 });
 
@@ -77,6 +94,7 @@ const appointmentsRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([
   authRoute,
+  pendingRoute,
   appRoute.addChildren([indexRoute, appointmentsRoute, calendarRoute, clientsRoute, reportsRoute, settingsRoute])
 ]);
 

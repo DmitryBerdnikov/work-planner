@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { isoDateTimeSchema } from "./common";
+import { profileStatusSchema } from "./profiles";
 
 export const apiErrorSchema = z.object({
   error: z.string(),
@@ -26,3 +28,15 @@ export const currentUserResponseSchema = z.object({
   user: currentUserSchema
 });
 export type CurrentUserResponse = z.infer<typeof currentUserResponseSchema>;
+
+export const sessionProfileSchema = z.object({
+  status: profileStatusSchema,
+  activatedAt: isoDateTimeSchema.nullable()
+});
+export type SessionProfile = z.infer<typeof sessionProfileSchema>;
+
+export const sessionResponseSchema = z.object({
+  user: currentUserSchema,
+  profile: sessionProfileSchema
+});
+export type SessionResponse = z.infer<typeof sessionResponseSchema>;

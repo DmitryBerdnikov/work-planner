@@ -1,20 +1,26 @@
-import { mkdirSync } from "node:fs";
-import { dirname } from "node:path";
-import Database from "better-sqlite3";
 import { betterAuth } from "better-auth";
 import { env } from "../config/env";
-
-mkdirSync(dirname(env.DATABASE_PATH), { recursive: true });
+import { sqlite } from "../db/client";
+import { ensureProfileForUser } from "./ensure-profile";
 
 export const auth = betterAuth({
   baseURL: env.API_BASE_URL,
   secret: env.AUTH_SECRET,
-  database: new Database(env.DATABASE_PATH),
+  database: sqlite,
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false
   },
-  trustedOrigins: [env.WEB_ORIGIN]
+  trustedOrigins: [env.WEB_ORIGIN],
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          await ensureProfileForUser(user.id, user.email);
+        }
+      }
+    }
+  }
 });
 
 export type AuthSession = typeof auth.$Infer.Session;

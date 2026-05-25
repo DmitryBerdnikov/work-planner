@@ -42,7 +42,37 @@
           "error"
         ]
       },
-      "CurrentUserResponse": {
+      "CurrentUser": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "image": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailVerified": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "name",
+          "emailVerified"
+        ]
+      },
+      "SessionResponse": {
         "type": "object",
         "properties": {
           "user": {
@@ -74,10 +104,33 @@
               "name",
               "emailVerified"
             ]
+          },
+          "profile": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "pending",
+                  "active",
+                  "blocked"
+                ]
+              },
+              "activatedAt": {
+                "type": "string",
+                "nullable": true,
+                "format": "date-time"
+              }
+            },
+            "required": [
+              "status",
+              "activatedAt"
+            ]
           }
         },
         "required": [
-          "user"
+          "user",
+          "profile"
         ]
       },
       "Client": {
@@ -296,35 +349,25 @@
         }
       }
     },
-    "/api/me": {
+    "/api/session": {
       "get": {
-        "operationId": "fetchCurrentUser",
+        "operationId": "fetchSession",
         "tags": [
           "Session"
         ],
         "responses": {
           "200": {
-            "description": "Current user",
+            "description": "Current session",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CurrentUserResponse"
+                  "$ref": "#/components/schemas/SessionResponse"
                 }
               }
             }
           },
           "401": {
             "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiError"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Account is not active",
             "content": {
               "application/json": {
                 "schema": {
