@@ -24,7 +24,7 @@ export default defineConfig([
     }
   },
   {
-    files: ["apps/web/src/router.tsx"],
+    files: ["apps/web/src/app/router.tsx"],
     rules: {
       "@typescript-eslint/consistent-type-definitions": "off"
     }

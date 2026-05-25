@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { CalendarDays, ChartNoAxesColumn, ClipboardList, Settings, Users } from "lucide-react";
-import { cn } from "../utils/cn.js";
+import { cn } from "../lib/cn";
 
 const navItems = [
   { to: "/appointments", label: "Записи", icon: ClipboardList },

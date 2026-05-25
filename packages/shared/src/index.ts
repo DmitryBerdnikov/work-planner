@@ -1,3 +1,2 @@
-export * from "./schemas.js";
-export * from "./helpers.js";
-
+export * from "./schemas/index";
+export * from "./helpers";

@@ -16,6 +16,7 @@
 | PWA/offline на клиенте | IndexedDB через Dexie |
 | Backend framework | Hono |
 | API style | REST JSON |
+| API docs | Scalar on `/api/docs` only in local development |
 | Validation | Zod |
 | Database | SQLite |
 | Database access | Drizzle ORM |

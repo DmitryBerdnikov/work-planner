@@ -1,10 +1,10 @@
 import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { CalendarDays, ChartNoAxesColumn, ClipboardList, Settings } from "lucide-react";
-import { AppShell } from "./ui/app-shell.js";
-import { AuthPage } from "./views/auth-page.js";
-import { ClientsPage } from "./views/clients-page.js";
-import { DashboardPage } from "./views/dashboard-page.js";
-import { PlaceholderPage } from "./views/placeholder-page.js";
+import { AuthPage } from "@pages/auth-page";
+import { ClientsPage } from "@pages/clients-page";
+import { DashboardPage } from "@pages/dashboard-page";
+import { PlaceholderPage } from "@pages/placeholder-page";
+import { AppShell } from "@shared/ui/app-shell";
 
 const rootRoute = createRootRoute({
   component: () => <Outlet />

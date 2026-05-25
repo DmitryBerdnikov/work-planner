@@ -5,7 +5,7 @@ import {
   getAppointmentComputedStatus,
   isSalaryAppointment,
   sumSalary
-} from "./helpers.js";
+} from "./helpers";
 
 const now = new Date("2026-05-22T10:00:00.000Z");
 

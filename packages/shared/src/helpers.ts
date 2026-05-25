@@ -1,4 +1,4 @@
-import type { Appointment, AppointmentComputedStatus } from "./schemas.js";
+import type { Appointment, AppointmentComputedStatus } from "./schemas";
 
 type AppointmentStatusInput = Pick<Appointment, "status" | "startsAt">;
 type SalaryAppointmentInput = Pick<Appointment, "type" | "status" | "startsAt" | "sessionAmount">;
@@ -39,4 +39,3 @@ export function formatMoneyMinor(amount: number, locale = "ru-RU", currency = "R
     maximumFractionDigits: 0
   }).format(amount / 100);
 }
-

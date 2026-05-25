@@ -10,11 +10,14 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "openapi": "tsx src/openapi/write-openapi.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.0",
+    "@hono/zod-openapi": "^1.4.0",
+    "@scalar/hono-api-reference": "^0.10.19",
     "@work-planner/shared": "workspace:*",
     "better-auth": "^1.0.0",
     "better-sqlite3": "^12.0.0",

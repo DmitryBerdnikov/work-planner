@@ -5,7 +5,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@work-planner/shared": new URL("../../packages/shared/src/index.ts", import.meta.url).pathname
+      "@work-planner/shared": new URL("../../packages/shared/src/index.ts", import.meta.url).pathname,
+      "@modules": new URL("./src/modules", import.meta.url).pathname,
+      "@pages": new URL("./src/pages", import.meta.url).pathname,
+      "@shared": new URL("./src/shared", import.meta.url).pathname
     }
   },
   server: {

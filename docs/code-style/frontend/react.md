@@ -1,6 +1,6 @@
 # React
 
-- Move business logic into hooks; components should not contain business logic. UI logic such as whether a component is open or closed can remain at the component level.
+- Move business logic into `modules/<feature>/hooks/`; components should not contain business logic. UI logic such as whether a component is open or closed can remain at the component level.
 
 ## Components
 
@@ -31,15 +31,29 @@ export const Button = ({
 ```
 
 - One main component per file.
-- `views/` — pages; `ui/` — reusable blocks not tied to a specific route.
+- `pages/` — route entry components; `shared/ui/` — reusable primitives; `modules/<feature>/ui/` — feature-specific UI.
 - Name handlers using the following convention: `handleSubmit`, `handleClick`.
+
+## Module Layout Example
+
+```text
+modules/clients/
+  api/clients-api.ts
+  model/clients-keys.ts
+  model/clients-form.ts
+  hooks/use-clients-page.ts
+  ui/client-card.tsx
+  index.ts
+pages/clients-page.tsx
+```
 
 ## Styles in JSX
 
-- Use classes via `cn()`, and Tailwind tokens from the design system.
+- Use classes via `cn()` from `shared/lib/cn.ts`, and Tailwind tokens from the design system.
 - Icons: `lucide-react`, size controlled through the `size` prop.
 
 ## Forms
 
 - Use React Hook Form + Zod resolver from `@work-planner/shared`.
 - Form schema should be a subset or `pick` from the shared schema, not a full DTO copy-paste.
+- Form components live in `modules/<feature>/ui/`.

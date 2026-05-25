@@ -1,9 +1,9 @@
 import type { MiddlewareHandler } from "hono";
 import { eq } from "drizzle-orm";
-import { env } from "../config/env.js";
-import { db } from "../db/client.js";
-import { profiles } from "../db/schema.js";
-import { auth, type AuthSession } from "./auth.js";
+import { env } from "../config/env";
+import { db } from "../db/client";
+import { profiles } from "../db/schema";
+import { auth, type AuthSession } from "./auth";
 
 type Variables = {
   user: AuthSession["user"] | null;

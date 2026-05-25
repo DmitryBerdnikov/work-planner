@@ -2,7 +2,7 @@ import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
 import Database from "better-sqlite3";
 import { betterAuth } from "better-auth";
-import { env } from "../config/env.js";
+import { env } from "../config/env";
 
 mkdirSync(dirname(env.DATABASE_PATH), { recursive: true });
 

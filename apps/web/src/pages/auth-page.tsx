@@ -1,5 +1,5 @@
 import { Lock } from "lucide-react";
-import { Button } from "../ui/button.js";
+import { Button } from "@shared/ui/button";
 
 export const AuthPage = () => {
   return (

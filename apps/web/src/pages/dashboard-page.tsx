@@ -1,14 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { CalendarPlus, CircleDollarSign, Wifi } from "lucide-react";
 import { formatMoneyMinor } from "@work-planner/shared";
-import { fetchHealth } from "../api/client.js";
-import { Button } from "../ui/button.js";
+import { useDashboardPage } from "@modules/dashboard";
+import { Button } from "@shared/ui/button";
 
 export const DashboardPage = () => {
-  const health = useQuery({
-    queryKey: ["health"],
-    queryFn: fetchHealth
-  });
+  const { healthQuery } = useDashboardPage();
 
   return (
     <div className="space-y-6">
@@ -40,7 +36,7 @@ export const DashboardPage = () => {
             API
           </div>
           <p className="mt-3 text-base font-bold">
-            {health.isLoading ? "Проверка..." : health.data?.ok ? health.data.environment : "Недоступен"}
+            {healthQuery.isLoading ? "Проверка..." : healthQuery.data?.ok ? healthQuery.data.environment : "Недоступен"}
           </p>
         </article>
       </section>
