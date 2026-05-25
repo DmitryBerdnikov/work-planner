@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { auth } from "./auth/auth";
 import { attachSession, type AppBindings } from "./auth/middleware";
 import { env } from "./config/env";
+import { appointmentsRoutes } from "./routes/appointments";
 import { clientsRoutes } from "./routes/clients";
 import { healthRoutes } from "./routes/health";
 import { sessionRoutes } from "./routes/session";
@@ -27,6 +28,7 @@ app.use("*", attachSession);
 app.route("/api", healthRoutes);
 app.route("/api", sessionRoutes);
 app.route("/api", clientsRoutes);
+app.route("/api", appointmentsRoutes);
 
 app.doc("/api/openapi.json", {
   openapi: "3.0.0",

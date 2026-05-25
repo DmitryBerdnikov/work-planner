@@ -42,36 +42,6 @@
           "error"
         ]
       },
-      "CurrentUser": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1
-          },
-          "email": {
-            "type": "string",
-            "format": "email"
-          },
-          "name": {
-            "type": "string",
-            "minLength": 1
-          },
-          "image": {
-            "type": "string",
-            "nullable": true
-          },
-          "emailVerified": {
-            "type": "boolean"
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "name",
-          "emailVerified"
-        ]
-      },
       "SessionResponse": {
         "type": "object",
         "properties": {
@@ -322,6 +292,322 @@
             "additionalProperties": {
               "nullable": true
             }
+          }
+        }
+      },
+      "AppointmentsResponse": {
+        "type": "object",
+        "properties": {
+          "appointments": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "userId": {
+                  "type": "string",
+                  "format": "uuid"
+                },
+                "clientId": {
+                  "type": "string",
+                  "nullable": true,
+                  "format": "uuid"
+                },
+                "startsAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "title": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "work",
+                    "personal"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "scheduled",
+                    "cancelled"
+                  ]
+                },
+                "sessionAmount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "prepaymentAmount": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "note": {
+                  "type": "string",
+                  "default": ""
+                },
+                "customData": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "nullable": true
+                  },
+                  "default": {}
+                },
+                "deletedAt": {
+                  "type": "string",
+                  "nullable": true,
+                  "format": "date-time"
+                },
+                "createdAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "updatedAt": {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                "revision": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "computedStatus": {
+                  "type": "string",
+                  "enum": [
+                    "scheduled",
+                    "completed",
+                    "cancelled"
+                  ]
+                }
+              },
+              "required": [
+                "id",
+                "userId",
+                "clientId",
+                "startsAt",
+                "title",
+                "type",
+                "status",
+                "sessionAmount",
+                "prepaymentAmount",
+                "deletedAt",
+                "createdAt",
+                "updatedAt",
+                "revision",
+                "computedStatus"
+              ]
+            }
+          }
+        },
+        "required": [
+          "appointments"
+        ]
+      },
+      "AppointmentResponse": {
+        "type": "object",
+        "properties": {
+          "appointment": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "userId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "clientId": {
+                "type": "string",
+                "nullable": true,
+                "format": "uuid"
+              },
+              "startsAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "work",
+                  "personal"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "scheduled",
+                  "cancelled"
+                ]
+              },
+              "sessionAmount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "prepaymentAmount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "note": {
+                "type": "string",
+                "default": ""
+              },
+              "customData": {
+                "type": "object",
+                "additionalProperties": {
+                  "nullable": true
+                },
+                "default": {}
+              },
+              "deletedAt": {
+                "type": "string",
+                "nullable": true,
+                "format": "date-time"
+              },
+              "createdAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "updatedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "computedStatus": {
+                "type": "string",
+                "enum": [
+                  "scheduled",
+                  "completed",
+                  "cancelled"
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "userId",
+              "clientId",
+              "startsAt",
+              "title",
+              "type",
+              "status",
+              "sessionAmount",
+              "prepaymentAmount",
+              "deletedAt",
+              "createdAt",
+              "updatedAt",
+              "revision",
+              "computedStatus"
+            ]
+          }
+        },
+        "required": [
+          "appointment"
+        ]
+      },
+      "CreateAppointmentPayload": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "default": null
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "work",
+              "personal"
+            ]
+          },
+          "sessionAmount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "prepaymentAmount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string",
+            "default": ""
+          },
+          "customData": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "default": {}
+          }
+        },
+        "required": [
+          "startsAt",
+          "title",
+          "type",
+          "sessionAmount",
+          "prepaymentAmount"
+        ]
+      },
+      "UpdateAppointmentPayload": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "default": null
+          },
+          "startsAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "work",
+              "personal"
+            ]
+          },
+          "sessionAmount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "prepaymentAmount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "note": {
+            "type": "string",
+            "default": ""
+          },
+          "customData": {
+            "type": "object",
+            "additionalProperties": {
+              "nullable": true
+            },
+            "default": {}
           }
         }
       }
@@ -711,6 +997,306 @@
           },
           "404": {
             "description": "Client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/appointments": {
+      "get": {
+        "operationId": "fetchAppointments",
+        "tags": [
+          "Appointments"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "from",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "required": false,
+            "name": "to",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointments list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentsResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account is not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "createAppointment",
+        "tags": [
+          "Appointments"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created appointment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account is not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}": {
+      "patch": {
+        "operationId": "updateAppointment",
+        "tags": [
+          "Appointments"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentPayload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated appointment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account is not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Appointment or client not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/appointments/{id}/cancel": {
+      "post": {
+        "operationId": "cancelAppointment",
+        "tags": [
+          "Appointments"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "required": true,
+            "name": "id",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cancelled appointment",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Account is not active",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Appointment not found",
             "content": {
               "application/json": {
                 "schema": {

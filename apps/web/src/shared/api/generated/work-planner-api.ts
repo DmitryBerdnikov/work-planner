@@ -16,17 +16,6 @@ export type ApiError = {
   issues?: (unknown | null)[];
 };
 
-export type CurrentUser = {
-  /** @minLength 1 */
-  id: string;
-  email: string;
-  /** @minLength 1 */
-  name: string;
-  /** @nullable */
-  image?: string | null;
-  emailVerified: boolean;
-};
-
 export type SessionResponseUser = {
   /** @minLength 1 */
   id: string;
@@ -121,6 +110,168 @@ export type UpdateClientPayload = {
   customData?: UpdateClientPayloadCustomData;
 };
 
+export type AppointmentsResponseAppointmentsItemType = typeof AppointmentsResponseAppointmentsItemType[keyof typeof AppointmentsResponseAppointmentsItemType];
+
+
+export const AppointmentsResponseAppointmentsItemType = {
+  work: 'work',
+  personal: 'personal',
+} as const;
+
+export type AppointmentsResponseAppointmentsItemStatus = typeof AppointmentsResponseAppointmentsItemStatus[keyof typeof AppointmentsResponseAppointmentsItemStatus];
+
+
+export const AppointmentsResponseAppointmentsItemStatus = {
+  scheduled: 'scheduled',
+  cancelled: 'cancelled',
+} as const;
+
+export type AppointmentsResponseAppointmentsItemCustomData = {[key: string]: unknown | null};
+
+export type AppointmentsResponseAppointmentsItemComputedStatus = typeof AppointmentsResponseAppointmentsItemComputedStatus[keyof typeof AppointmentsResponseAppointmentsItemComputedStatus];
+
+
+export const AppointmentsResponseAppointmentsItemComputedStatus = {
+  scheduled: 'scheduled',
+  completed: 'completed',
+  cancelled: 'cancelled',
+} as const;
+
+export type AppointmentsResponseAppointmentsItem = {
+  id: string;
+  userId: string;
+  /** @nullable */
+  clientId: string | null;
+  startsAt: string;
+  /** @minLength 1 */
+  title: string;
+  type: AppointmentsResponseAppointmentsItemType;
+  status: AppointmentsResponseAppointmentsItemStatus;
+  /** @minimum 0 */
+  sessionAmount: number;
+  /** @minimum 0 */
+  prepaymentAmount: number;
+  note?: string;
+  customData?: AppointmentsResponseAppointmentsItemCustomData;
+  /** @nullable */
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  /** @minimum 0 */
+  revision: number;
+  computedStatus: AppointmentsResponseAppointmentsItemComputedStatus;
+};
+
+export type AppointmentsResponse = {
+  appointments: AppointmentsResponseAppointmentsItem[];
+};
+
+export type AppointmentResponseAppointmentType = typeof AppointmentResponseAppointmentType[keyof typeof AppointmentResponseAppointmentType];
+
+
+export const AppointmentResponseAppointmentType = {
+  work: 'work',
+  personal: 'personal',
+} as const;
+
+export type AppointmentResponseAppointmentStatus = typeof AppointmentResponseAppointmentStatus[keyof typeof AppointmentResponseAppointmentStatus];
+
+
+export const AppointmentResponseAppointmentStatus = {
+  scheduled: 'scheduled',
+  cancelled: 'cancelled',
+} as const;
+
+export type AppointmentResponseAppointmentCustomData = {[key: string]: unknown | null};
+
+export type AppointmentResponseAppointmentComputedStatus = typeof AppointmentResponseAppointmentComputedStatus[keyof typeof AppointmentResponseAppointmentComputedStatus];
+
+
+export const AppointmentResponseAppointmentComputedStatus = {
+  scheduled: 'scheduled',
+  completed: 'completed',
+  cancelled: 'cancelled',
+} as const;
+
+export type AppointmentResponseAppointment = {
+  id: string;
+  userId: string;
+  /** @nullable */
+  clientId: string | null;
+  startsAt: string;
+  /** @minLength 1 */
+  title: string;
+  type: AppointmentResponseAppointmentType;
+  status: AppointmentResponseAppointmentStatus;
+  /** @minimum 0 */
+  sessionAmount: number;
+  /** @minimum 0 */
+  prepaymentAmount: number;
+  note?: string;
+  customData?: AppointmentResponseAppointmentCustomData;
+  /** @nullable */
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  /** @minimum 0 */
+  revision: number;
+  computedStatus: AppointmentResponseAppointmentComputedStatus;
+};
+
+export type AppointmentResponse = {
+  appointment: AppointmentResponseAppointment;
+};
+
+export type CreateAppointmentPayloadType = typeof CreateAppointmentPayloadType[keyof typeof CreateAppointmentPayloadType];
+
+
+export const CreateAppointmentPayloadType = {
+  work: 'work',
+  personal: 'personal',
+} as const;
+
+export type CreateAppointmentPayloadCustomData = {[key: string]: unknown | null};
+
+export type CreateAppointmentPayload = {
+  /** @nullable */
+  clientId?: string | null;
+  startsAt: string;
+  /** @minLength 1 */
+  title: string;
+  type: CreateAppointmentPayloadType;
+  /** @minimum 0 */
+  sessionAmount: number;
+  /** @minimum 0 */
+  prepaymentAmount: number;
+  note?: string;
+  customData?: CreateAppointmentPayloadCustomData;
+};
+
+export type UpdateAppointmentPayloadType = typeof UpdateAppointmentPayloadType[keyof typeof UpdateAppointmentPayloadType];
+
+
+export const UpdateAppointmentPayloadType = {
+  work: 'work',
+  personal: 'personal',
+} as const;
+
+export type UpdateAppointmentPayloadCustomData = {[key: string]: unknown | null};
+
+export type UpdateAppointmentPayload = {
+  /** @nullable */
+  clientId?: string | null;
+  startsAt?: string;
+  /** @minLength 1 */
+  title?: string;
+  type?: UpdateAppointmentPayloadType;
+  /** @minimum 0 */
+  sessionAmount?: number;
+  /** @minimum 0 */
+  prepaymentAmount?: number;
+  note?: string;
+  customData?: UpdateAppointmentPayloadCustomData;
+};
+
 export type FetchClientsParams = {
 q?: string;
 includeArchived?: FetchClientsIncludeArchived;
@@ -133,6 +284,11 @@ export const FetchClientsIncludeArchived = {
   true: 'true',
   false: 'false',
 } as const;
+
+export type FetchAppointmentsParams = {
+from?: string;
+to?: string;
+};
 
 export const getFetchHealthUrl = () => {
 
@@ -279,6 +435,98 @@ export const getRestoreClientUrl = (id: string,) => {
 export const restoreClient = async (id: string, options?: RequestInit): Promise<ClientResponse> => {
 
   return workPlannerApi<ClientResponse>(getRestoreClientUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+export const getFetchAppointmentsUrl = (params?: FetchAppointmentsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/appointments?${stringifiedParams}` : `/api/appointments`
+}
+
+export const fetchAppointments = async (params?: FetchAppointmentsParams, options?: RequestInit): Promise<AppointmentsResponse> => {
+
+  return workPlannerApi<AppointmentsResponse>(getFetchAppointmentsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getCreateAppointmentUrl = () => {
+
+
+
+
+  return `/api/appointments`
+}
+
+export const createAppointment = async (createAppointmentPayload: CreateAppointmentPayload, options?: RequestInit): Promise<AppointmentResponse> => {
+
+  return workPlannerApi<AppointmentResponse>(getCreateAppointmentUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(createAppointmentPayload)
+  }
+);}
+
+
+
+export const getUpdateAppointmentUrl = (id: string,) => {
+
+
+
+
+  return `/api/appointments/${id}`
+}
+
+export const updateAppointment = async (id: string,
+    updateAppointmentPayload: UpdateAppointmentPayload, options?: RequestInit): Promise<AppointmentResponse> => {
+
+  return workPlannerApi<AppointmentResponse>(getUpdateAppointmentUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(updateAppointmentPayload)
+  }
+);}
+
+
+
+export const getCancelAppointmentUrl = (id: string,) => {
+
+
+
+
+  return `/api/appointments/${id}/cancel`
+}
+
+export const cancelAppointment = async (id: string, options?: RequestInit): Promise<AppointmentResponse> => {
+
+  return workPlannerApi<AppointmentResponse>(getCancelAppointmentUrl(id),
   {
     ...options,
     method: 'POST'
