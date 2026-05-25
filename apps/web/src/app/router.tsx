@@ -1,7 +1,9 @@
 import { createRootRouteWithContext, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChartNoAxesColumn, ClipboardList, Settings } from "lucide-react";
+import { CalendarDays, ChartNoAxesColumn, Settings } from "lucide-react";
 import { clientsQueries, defaultClientsListParams } from "@modules/clients/model/clients-queries";
+import { appointmentsQueries, defaultAppointmentsListParams } from "@modules/appointments/model/appointments-queries";
+import { AppointmentsPage } from "@pages/appointments-page";
 import { AuthPage } from "@pages/auth-page";
 import { ClientsPage } from "@pages/clients-page";
 import { DashboardPage } from "@pages/dashboard-page";
@@ -89,7 +91,15 @@ const settingsRoute = createRoute({
 const appointmentsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/appointments",
-  component: () => <PlaceholderPage icon={ClipboardList} title="Записи" description="Здесь будет список записей и быстрые действия." />
+  loader: async ({ context }) => {
+    try {
+      await context.queryClient.prefetchQuery(appointmentsQueries.list(defaultAppointmentsListParams));
+      await context.queryClient.prefetchQuery(appointmentsQueries.clientsForSelect());
+    } catch {
+      // Active-only route: auth/profile failures are handled in beforeLoad.
+    }
+  },
+  component: AppointmentsPage
 });
 
 const routeTree = rootRoute.addChildren([
