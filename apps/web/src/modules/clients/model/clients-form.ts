@@ -12,7 +12,7 @@ export const emptyClientFormValues: CreateClientPayload = {
   customData: {}
 };
 
-export function toClientFormValues(client: Client): CreateClientPayload {
+export const mapClientToFormValues = (client: Client): CreateClientPayload => {
   return {
     name: client.name,
     label: client.label,

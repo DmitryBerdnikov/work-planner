@@ -1,18 +1,29 @@
-import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import { createRootRouteWithContext, createRoute, createRouter, Outlet } from "@tanstack/react-router";
+import type { QueryClient } from "@tanstack/react-query";
 import { CalendarDays, ChartNoAxesColumn, ClipboardList, Settings } from "lucide-react";
+import { clientsQueries, defaultClientsListParams } from "@modules/clients/model/clients-queries";
 import { AuthPage } from "@pages/auth-page";
 import { ClientsPage } from "@pages/clients-page";
 import { DashboardPage } from "@pages/dashboard-page";
 import { PlaceholderPage } from "@pages/placeholder-page";
 import { AppShell } from "@shared/ui/app-shell";
+import { queryClient } from "./query-client";
+import { RouteError } from "./route-error";
+import { redirectUnauthorized, requireActiveProfile } from "./route-guards";
 
-const rootRoute = createRootRoute({
+type RouterContext = {
+  queryClient: QueryClient;
+};
+
+const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => <Outlet />
 });
 
 const appRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "app",
+  beforeLoad: requireActiveProfile,
+  errorComponent: RouteError,
   component: () => (
     <AppShell>
       <Outlet />
@@ -41,6 +52,8 @@ const calendarRoute = createRoute({
 const clientsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/clients",
+  loader: ({ context }) =>
+    redirectUnauthorized(context.queryClient.ensureQueryData(clientsQueries.list(defaultClientsListParams))),
   component: ClientsPage
 });
 
@@ -67,7 +80,10 @@ const routeTree = rootRoute.addChildren([
   appRoute.addChildren([indexRoute, appointmentsRoute, calendarRoute, clientsRoute, reportsRoute, settingsRoute])
 ]);
 
-export const router = createRouter({ routeTree });
+export const router = createRouter({
+  routeTree,
+  context: { queryClient }
+});
 
 declare module "@tanstack/react-router" {
   interface Register {

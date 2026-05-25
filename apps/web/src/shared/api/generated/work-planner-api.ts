@@ -16,6 +16,21 @@ export type ApiError = {
   issues?: (unknown | null)[];
 };
 
+export type CurrentUserResponseUser = {
+  /** @minLength 1 */
+  id: string;
+  email: string;
+  /** @minLength 1 */
+  name: string;
+  /** @nullable */
+  image?: string | null;
+  emailVerified: boolean;
+};
+
+export type CurrentUserResponse = {
+  user: CurrentUserResponseUser;
+};
+
 export type ClientCustomData = {[key: string]: unknown | null};
 
 export type Client = {
@@ -103,6 +118,27 @@ export const getFetchHealthUrl = () => {
 export const fetchHealth = async ( options?: RequestInit): Promise<HealthResponse> => {
 
   return workPlannerApi<HealthResponse>(getFetchHealthUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+export const getFetchCurrentUserUrl = () => {
+
+
+
+
+  return `/api/me`
+}
+
+export const fetchCurrentUser = async ( options?: RequestInit): Promise<CurrentUserResponse> => {
+
+  return workPlannerApi<CurrentUserResponse>(getFetchCurrentUserUrl(),
   {
     ...options,
     method: 'GET'

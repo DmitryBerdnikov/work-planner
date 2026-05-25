@@ -40,6 +40,22 @@ describe("clients routes", () => {
     expect(response.status).toBe(403);
   });
 
+  it("returns current user for an active profile", async () => {
+    seedProfile(activeUserId, "active@example.com", "active");
+
+    const response = await app.request("/api/me", {
+      headers: testHeaders(activeUserId)
+    });
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      user: {
+        id: activeUserId,
+        email: `${activeUserId}@example.com`
+      }
+    });
+  });
+
   it("returns validation_error when creating a client without a name", async () => {
     seedProfile(activeUserId, "active@example.com", "active");
 

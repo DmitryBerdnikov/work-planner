@@ -38,13 +38,17 @@ export const Button = ({
 
 ```text
 modules/clients/
-  api/clients-api.ts
-  model/clients-keys.ts
+  model/clients-queries.ts
   model/clients-form.ts
+  hooks/use-clients-list.ts
+  hooks/use-save-client.ts
+  hooks/use-client-archive.ts
+  hooks/use-invalidate-clients.ts
   hooks/use-clients-page.ts
   ui/client-card.tsx
   index.ts
-pages/clients-page.tsx
+pages/clients-page/
+  clients-page.tsx
 ```
 
 ## Styles in JSX

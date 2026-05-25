@@ -2,10 +2,11 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
 import { auth } from "./auth/auth";
-import { attachSession, requireActiveProfile, type AppBindings } from "./auth/middleware";
+import { attachSession, type AppBindings } from "./auth/middleware";
 import { env } from "./config/env";
 import { clientsRoutes } from "./routes/clients";
 import { healthRoutes } from "./routes/health";
+import { sessionRoutes } from "./routes/session";
 
 export const app = new OpenAPIHono<AppBindings>();
 
@@ -24,6 +25,7 @@ app.use(
 app.use("*", attachSession);
 
 app.route("/api", healthRoutes);
+app.route("/api", sessionRoutes);
 app.route("/api", clientsRoutes);
 
 app.doc("/api/openapi.json", {
@@ -43,10 +45,6 @@ if (env.NODE_ENV === "development" && env.APP_ENV === "development") {
 
 app.on(["GET", "POST"], "/api/auth/*", (c) => {
   return auth.handler(c.req.raw);
-});
-
-app.get("/api/me", requireActiveProfile, (c) => {
-  return c.json({ user: c.get("user") });
 });
 
 export type AppType = typeof app;
