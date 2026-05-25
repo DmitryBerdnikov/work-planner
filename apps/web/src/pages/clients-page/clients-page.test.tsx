@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { ClientsPage } from "./clients-page";
+import { ClientsPage } from "./index";
 
 const client = {
   id: "550e8400-e29b-41d4-a716-446655440000",

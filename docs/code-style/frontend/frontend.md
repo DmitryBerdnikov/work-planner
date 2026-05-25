@@ -18,7 +18,7 @@ Applies to all files: `apps/web/*`.
 | Folder | Purpose |
 | --- | --- |
 | `app/` | Bootstrap (`main.tsx`), providers, router, global styles |
-| `pages/` | Route entry components (one file per route) |
+| `pages/` | Route entry components (`<route>/index.ts` as public API, plus local files) |
 | `shared/` | Cross-module code: HTTP transport, auth client, UI primitives, config, `cn` |
 | `modules/<feature>/` | Feature logic: `model/`, `hooks/`, `ui/`, optional `api/` |
 | `test/` | Vitest setup |
@@ -49,12 +49,13 @@ Applies to all files: `apps/web/*`.
 - `pages/` imports from `modules/<feature>/*` and `shared/*`.
 - `modules/<feature>/` imports from `shared/*` and its own subfolders.
 - **Between modules:** only via `modules/<name>/index.ts`. No deep imports like `modules/clients/hooks/...` from another module.
+- Public entry for a page is `pages/<route>/index.ts`; route internals stay inside that folder.
 - Generated API can be imported in `modules/<feature>/hooks/` or `modules/<feature>/model/`.
 - UI components must not import generated API directly.
 
 ## Routing
 
-- Route tree lives in `app/router.tsx`; pages are imported from `pages/*`.
+- Route tree lives in `app/router.tsx`; pages are imported from `pages/*` through each page's `index.ts`.
 - Protected / pending / auth states should be handled via route `beforeLoad` or layout (as implemented).
 - Placeholder pages belong in `pages/`, not in `shared/ui/`.
 
@@ -84,14 +85,14 @@ Applies to all files: `apps/web/*`.
 
 ## Tests
 
-- Page/integration: `pages/*.test.tsx`.
+- Page/integration: `pages/<route>/*.test.tsx`.
 - Hook unit: `modules/<feature>/hooks/*.test.ts` when needed.
 - Pure model: `modules/<feature>/model/*.test.ts`.
 - Shared utilities: `*.test.ts` next to the file.
 
 ## New Feature Checklist
 
-- [ ] Route component in `pages/<feature>-page.tsx`
+- [ ] Route folder `pages/<feature>-page/` with `index.ts` public export
 - [ ] Module folder `modules/<feature>/` with `hooks/`, `ui/` and `model/` when keys/mappers exist
 - [ ] No cross-module deep imports
 - [ ] Generated API imported only from module hooks/model, not from UI
