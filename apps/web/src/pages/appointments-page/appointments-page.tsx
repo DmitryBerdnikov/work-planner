@@ -1,10 +1,14 @@
+import { getRouteApi } from "@tanstack/react-router";
 import { ClipboardList } from "lucide-react";
 import { useAppointmentsPage } from "@modules/appointments";
 import { AppointmentCard } from "@modules/appointments/ui/appointment-card";
 import { AppointmentForm } from "@modules/appointments/ui/appointment-form";
 import { Notice } from "@shared/ui/notice";
 
+const appointmentsRouteApi = getRouteApi("/app/appointments");
+
 export const AppointmentsPage = () => {
+  const search = appointmentsRouteApi.useSearch();
   const {
     appointments,
     appointmentsQuery,
@@ -20,7 +24,7 @@ export const AppointmentsPage = () => {
     handleCancelEdit,
     handleSave,
     handleCancel
-  } = useAppointmentsPage();
+  } = useAppointmentsPage(search);
 
   return (
     <div className="space-y-5">

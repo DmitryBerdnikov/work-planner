@@ -3,6 +3,17 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { AppointmentsPage } from "./index";
 
+vi.mock("@tanstack/react-router", async () => {
+  const actual = await vi.importActual<typeof import("@tanstack/react-router")>("@tanstack/react-router");
+
+  return {
+    ...actual,
+    getRouteApi: () => ({
+      useSearch: () => ({})
+    })
+  };
+});
+
 const appointment = {
   id: "550e8400-e29b-41d4-a716-446655440010",
   userId: "550e8400-e29b-41d4-a716-446655440000",

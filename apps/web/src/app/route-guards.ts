@@ -12,24 +12,6 @@ export const requireActiveProfile = async (): Promise<SessionResponse> => {
   return session;
 };
 
-export const redirectAuthenticatedFromAuth = async () => {
-  try {
-    const session = await fetchSession();
-
-    if (session.profile.status === "active") {
-      throw redirect({ to: "/" });
-    }
-
-    throw redirect({ to: "/pending" });
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) {
-      return;
-    }
-
-    throw error;
-  }
-};
-
 export const requirePendingProfile = async (): Promise<SessionResponse> => {
   const session = await loadSession();
 

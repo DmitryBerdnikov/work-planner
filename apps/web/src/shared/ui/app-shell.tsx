@@ -16,7 +16,7 @@ export const AppShell = ({ children }: PropsWithChildren) => {
 
   return (
     <div className="min-h-dvh bg-background text-text">
-      <aside className="fixed left-0 top-0 hidden h-dvh w-64 border-r border-border bg-surface px-5 py-6 lg:block">
+      <aside className="fixed left-0 top-0 z-40 hidden h-dvh w-64 border-r border-border bg-surface px-5 py-6 lg:block">
         <Link to="/" className="mb-8 block text-2xl font-bold">
           Work Planner
         </Link>
@@ -43,7 +43,7 @@ export const AppShell = ({ children }: PropsWithChildren) => {
       <main className="mx-auto min-h-dvh max-w-[1180px] px-4 pb-24 pt-5 lg:ml-64 lg:px-8 lg:pb-8">
         {children}
       </main>
-      <nav className="fixed inset-x-3 bottom-3 grid grid-cols-5 rounded-[28px] border border-border bg-surface p-2 shadow-[0_16px_40px_rgba(48,48,48,0.12)] lg:hidden">
+      <nav className="fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[28px] border border-border bg-surface p-2 shadow-[0_16px_40px_rgba(48,48,48,0.12)] lg:hidden">
         {navItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.to;

@@ -1,9 +1,15 @@
 import { createRootRouteWithContext, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import type { QueryClient } from "@tanstack/react-query";
-import { CalendarDays, ChartNoAxesColumn, Settings } from "lucide-react";
+import { ChartNoAxesColumn, Settings } from "lucide-react";
 import { clientsQueries, defaultClientsListParams } from "@modules/clients/model/clients-queries";
-import { appointmentsQueries, defaultAppointmentsListParams } from "@modules/appointments/model/appointments-queries";
+import {
+  appointmentsPageSearchSchema,
+  appointmentsQueries,
+  defaultAppointmentsListParams
+} from "@modules/appointments";
+import { defaultCalendarVisibleRange } from "@modules/calendar";
 import { AppointmentsPage } from "@pages/appointments-page";
+import { CalendarPage } from "@pages/calendar-page";
 import { AuthPage } from "@pages/auth-page";
 import { ClientsPage } from "@pages/clients-page";
 import { DashboardPage } from "@pages/dashboard-page";
@@ -12,7 +18,7 @@ import { PlaceholderPage } from "@pages/placeholder-page";
 import { AppShell } from "@shared/ui/app-shell";
 import { queryClient } from "./query-client";
 import { RouteError } from "./route-error";
-import { redirectAuthenticatedFromAuth, requireActiveProfile, requirePendingProfile } from "./route-guards";
+import { requireActiveProfile, requirePendingProfile } from "./route-guards";
 
 type RouterContext = {
   queryClient: QueryClient;
@@ -43,7 +49,6 @@ const indexRoute = createRoute({
 const authRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/auth",
-  beforeLoad: redirectAuthenticatedFromAuth,
   component: AuthPage
 });
 
@@ -60,7 +65,15 @@ const pendingRoute = createRoute({
 const calendarRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/calendar",
-  component: () => <PlaceholderPage icon={CalendarDays} title="Календарь" description="Здесь будет календарь записей с day/week/month режимами." />
+  loader: async ({ context }) => {
+    try {
+      await context.queryClient.prefetchQuery(appointmentsQueries.list(defaultCalendarVisibleRange()));
+      await context.queryClient.prefetchQuery(appointmentsQueries.clientsForSelect());
+    } catch {
+      // Active-only route: auth/profile failures are handled in beforeLoad.
+    }
+  },
+  component: CalendarPage
 });
 
 const clientsRoute = createRoute({
@@ -91,6 +104,7 @@ const settingsRoute = createRoute({
 const appointmentsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/appointments",
+  validateSearch: (search) => appointmentsPageSearchSchema.parse(search),
   loader: async ({ context }) => {
     try {
       await context.queryClient.prefetchQuery(appointmentsQueries.list(defaultAppointmentsListParams));
