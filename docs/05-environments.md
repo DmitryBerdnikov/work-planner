@@ -11,23 +11,21 @@
 
 ## Рекомендованная схема
 
-На старте допустимо держать оба окружения на одном VPS, если проект остается легким по нагрузке (число пользователей/данных/фото невелико).
+На старте допустимо держать оба окружения на одном VPS, если проект остается легким по нагрузке.
 
 ```text
 staging.example.com
   -> Caddy
   -> work-planner-staging.service
   -> /var/www/work-planner/staging/data/app.sqlite
-  -> /var/www/work-planner/staging/uploads
 
 example.com
   -> Caddy
   -> work-planner-production.service
   -> /var/www/work-planner/production/data/app.sqlite
-  -> /var/www/work-planner/production/uploads
 ```
 
-Если появится нагрузка, много фото или требования к надежности, production лучше вынести на отдельный VPS.
+Если появится нагрузка или требования к надежности, production лучше вынести на отдельный VPS.
 
 ## Домены
 
@@ -56,7 +54,6 @@ Caddy проксирует запросы на нужный сервис по д
 У каждого окружения свои:
 
 - SQLite database;
-- uploads;
 - backups;
 - auth secret;
 - cookie name;
@@ -92,7 +89,7 @@ tag v*            -> deploy production
 
 1. Deploy staging.
 2. Apply staging migrations.
-3. Проверить login, CRUD, sync, uploads.
+3. Проверить login, CRUD и sync.
 4. Deploy production.
 5. Apply production migrations.
 6. Проверить production smoke-test.
@@ -114,8 +111,6 @@ https://app.example.com
 
 - не запускать сборку на VPS;
 - держать по одному Node-процессу на окружение;
-- ограничить размер upload;
-- не хранить много фото локально;
 - следить за RAM и диском;
 - делать внешние backups.
 

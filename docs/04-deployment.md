@@ -36,7 +36,6 @@ systemd
 
 backend
   |-- SQLite database file
-  |-- local uploads
 ```
 
 ## Пути
@@ -50,16 +49,16 @@ backend
     backend/
     data/
       app.sqlite
-    uploads/
     backups/
   staging/
     frontend/
     backend/
     data/
       app.sqlite
-    uploads/
     backups/
 ```
+
+`uploads/` добавляется позже, когда post-deploy этап реализует attachments.
 
 ## GitHub Actions
 
@@ -76,7 +75,7 @@ backend
 
 Сборка не должна выполняться на VPS.
 
-Staging и production не должны использовать одну SQLite-базу, одну папку uploads или один auth secret.
+Staging и production не должны использовать одну SQLite-базу или один auth secret. После реализации attachments у окружений также должны быть разные папки uploads.
 
 ## Caddy
 
@@ -85,7 +84,7 @@ Caddy отвечает за:
 - HTTPS;
 - отдачу frontend-статики;
 - reverse proxy `/api/*` на backend;
-- лимит размера upload body.
+- лимит размера request body, когда появятся attachments.
 
 ## systemd
 
@@ -107,15 +106,16 @@ work-planner-production.service
 
 Backup выполняется вручную:
 
-1. Создать корректный архив SQLite database и uploads.
+1. Создать корректный архив SQLite database.
 2. Скачать архив с VPS.
 3. Хранить копию вне VPS.
 
 В архив входят:
 
 - SQLite database;
-- uploads;
 - конфигурация деплоя.
+
+После реализации attachments backup также должен включать uploads.
 
 Backup нельзя хранить только на этом же VPS. Для зрелого production нужно перейти на автоматический внешний backup.
 

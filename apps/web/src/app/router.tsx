@@ -92,7 +92,7 @@ const clientsRoute = createRoute({
 const reportsRoute = createRoute({
   getParentRoute: () => appRoute,
   path: "/reports",
-  component: () => <PlaceholderPage icon={ChartNoAxesColumn} title="Отчеты" description="Здесь будут зарплата по месяцам и количество рабочих сеансов." />
+  component: () => <PlaceholderPage icon={ChartNoAxesColumn} title="Отчеты" description="Аналитика появится отдельным этапом после запуска production." />
 });
 
 const settingsRoute = createRoute({

@@ -27,7 +27,7 @@
 | Account activation | Manual SQLite status update |
 | Email service | Not required |
 | Sessions | Secure HTTP-only cookies |
-| File storage | Local filesystem |
+| File storage | Local filesystem later for post-deploy attachments |
 | Reverse proxy / HTTPS | Caddy |
 | Process manager | systemd |
 | Deploy | GitHub Actions -> VPS |
@@ -51,7 +51,7 @@ infra/      # Примеры Caddy/systemd/GitHub Actions
 - Backend остается собственным API, чтобы не привязывать frontend к конкретной базе или BaaS.
 - Frontend работает от локальной IndexedDB и синхронизируется с backend.
 - Важные поля сущностей хранятся отдельными колонками, расширяемые поля - в `custom_data`.
-- Фото хранятся локально на VPS, но через абстракцию, чтобы позже перейти на S3-compatible storage.
+- Фото/attachments откладываются до post-deploy этапа; при реализации будут храниться локально на VPS через storage abstraction.
 - Сборка проекта выполняется в GitHub Actions, не на VPS.
 - Пользователь после регистрации получает статус `pending`; доступ к рабочим данным разрешен только при статусе `active`.
-- Offline-запись и редактирование распространяются на клиентов и записи; фото добавляются только online.
+- Offline-запись и редактирование распространяются на клиентов и записи. Фото не входят в pre-deploy scope.

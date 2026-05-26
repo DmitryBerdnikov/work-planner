@@ -4,7 +4,7 @@
 
 Цель: собрать production-ready веб-приложение на уже выбранном стеке: `React/Vite`, `Hono`, `SQLite + Drizzle`, `Better Auth`, `Dexie`, `PWA`, `Caddy + systemd`, `GitHub Actions`.
 
-Работа идет по этапам: сначала каркас и архитектурные границы, потом backend foundation, затем frontend foundation, потом CRUD, offline-sync, фото, отчеты, тесты и деплой.
+Работа идет по этапам: сначала каркас и архитектурные границы, потом backend foundation, затем frontend foundation, потом CRUD, offline-sync, тесты и деплой. Фото и аналитика переносятся в post-deploy backlog.
 
 ## Дизайн И Frontend Архитектура
 
@@ -19,16 +19,16 @@
 - Forms: `React Hook Form + Zod`.
 - Local/offline state: `Dexie`.
 - Calendar: `FullCalendar`.
-- Charts: `Recharts`.
+- Charts: `Recharts` позже для post-deploy аналитики.
 - Tests: `Vitest + Testing Library + Playwright + MSW`.
 
 Экранная логика:
 
 - Первый экран после входа: список ближайших записей + быстрые действия.
 - Календарь: day/week/month views, цвет по `type/status`.
-- Форма записи: `title`, `type`, `starts_at`, optional client, amount, prepayment, note, photos only online.
+- Форма записи: `title`, `type`, `starts_at`, optional client, amount, prepayment, note.
 - Клиенты: список, поиск, архив, карточка клиента, связанные записи.
-- Отчеты: зарплата по месяцам, количество рабочих сеансов, фильтры периода.
+- Отчеты: post-deploy аналитика после запуска production.
 
 ## Backend Архитектура
 
@@ -36,7 +36,7 @@
 
 - `apps/api` делится на слои: `routes`, `features`, `db`, `auth`, `services`, `config`.
 - `routes` только принимает HTTP и вызывает feature/service logic.
-- `features` содержит бизнес-логику по clients, appointments, attachments, sync.
+- `features` содержит бизнес-логику по clients, appointments и sync.
 - `db` содержит Drizzle schema, migrations, query helpers.
 - `services` содержит storage, backup helpers, sync engine, healthcheck.
 - `packages/shared` содержит Zod-схемы, типы DTO, sync contracts и общую бизнес-логику без доступа к БД.
@@ -51,7 +51,7 @@
 - В базе `appointment.status = scheduled | cancelled`.
 - `completed` вычисляется через `starts_at <= now`.
 - Зарплата считается только по `work`, не `cancelled`, `starts_at <= now`.
-- Фото хранятся локально через `StorageService`, чтобы потом заменить на S3-compatible storage без переписывания feature logic.
+- Фото/attachments остаются reserved future model и реализуются после деплоя.
 
 ## Пошаговый План Работ
 
@@ -82,8 +82,6 @@
 5. Реализовать core CRUD:
    - Clients: create/edit/archive/list/search.
    - Appointments: create/edit/cancel/list/calendar.
-   - Attachments: upload/delete/list только online.
-   - Reports: salary and session count by month.
 
 6. Реализовать offline:
    - Dexie schema для clients/appointments/outbox.
@@ -96,13 +94,17 @@
    - Caddy configs для `app.example.com` и `staging.example.com`.
    - `systemd` services для staging/production.
    - GitHub Actions: build/test/deploy staging on `main`, manual production deploy.
-   - Manual backup script/process для SQLite + uploads.
+   - Manual backup script/process для SQLite.
    - Smoke check через `/api/health`.
 
 8. Довести тестовую пирамиду:
    - Backend unit/integration/database tests.
    - Frontend unit/component/integration tests.
-   - Playwright e2e for registration, activation, CRUD, offline sync, upload limits.
+   - Playwright e2e for registration, activation, CRUD and offline sync.
+
+9. Post-deploy backlog:
+   - Фото/attachments: upload/delete/list, local filesystem storage, limits.
+   - Аналитика: salary by month, work session count, charts and period filters.
 
 ## Пошаговые Промты Для Реализации
 
@@ -124,17 +126,14 @@
 6. Offline:
    - “Добавь Dexie local DB, outbox, local-first clients/appointments flows и sync endpoints `/api/sync/push`, `/api/sync/pull`.”
 
-7. Фото:
-   - “Добавь online-only attachments: frontend compression, backend upload, local filesystem storage, limits 3 files per appointment and 2 MB per file.”
-
-8. Отчеты:
-   - “Добавь reports: salary by month and work session count using documented business rules.”
-
-9. Infra:
+7. Infra:
    - “Добавь `infra` templates для Caddy, systemd, GitHub Actions deploy, env examples and manual backup guide.”
 
-10. Production hardening:
+8. Production hardening:
    - “Проведи review тестов, security, error handling, deployment docs, smoke scenarios and fix gaps without changing product scope.”
+
+9. Post-deploy:
+   - “После production deploy добавь online-only attachments и аналитические отчеты отдельными этапами.”
 
 ## Subagents, MCP И Skills
 
@@ -161,14 +160,13 @@
 - `pnpm test` покрывает shared helpers, backend business rules, API guards, sync logic.
 - Playwright e2e покрывает registration -> pending -> manual activation -> login -> CRUD.
 - Offline e2e: создать запись offline, восстановить сеть, проверить sync.
-- Upload e2e: online upload, лимит размера, лимит количества.
-- Deploy smoke: staging `/api/health`, login, CRUD, sync, upload; затем manual production deploy.
+- Deploy smoke: staging `/api/health`, login, CRUD and sync; затем manual production deploy.
 
 ## Assumptions
 
 - Проект остается self-hosted на VPS с `Caddy + systemd`.
 - Production и staging живут на разных поддоменах.
 - Email-сервис не используется: регистрация email/password, ручная активация через SQLite.
-- Фото остаются online-only.
+- Фото/attachments и аналитика реализуются после production deploy.
 - Backup пока ручной, но для зрелого production позже нужен автоматический внешний backup.
 - Backend architecture выбирается как modular monolith, потому что это лучший баланс для текущего VPS и будущего масштабирования.
