@@ -1,0 +1,22 @@
+[Unit]
+Description=Work Planner API (staging)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=work-planner
+Group=work-planner
+WorkingDirectory=/var/www/work-planner/staging/backend/current
+EnvironmentFile=/etc/work-planner/staging.env
+ExecStart=/usr/bin/node apps/api/dist/server.js
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/work-planner/staging/data /var/www/work-planner/staging/backups /var/www/work-planner/staging/backend/current
+
+[Install]
+WantedBy=multi-user.target
+

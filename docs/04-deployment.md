@@ -77,6 +77,17 @@ backend
 
 Staging и production не должны использовать одну SQLite-базу или один auth secret. После реализации attachments у окружений также должны быть разные папки uploads.
 
+Текущие шаблоны лежат в:
+
+- `infra/caddy/Caddyfile`;
+- `infra/systemd/work-planner-staging.service`;
+- `infra/systemd/work-planner-production.service`;
+- `.github/workflows/deploy-staging.yml`;
+- `.github/workflows/deploy-production.yml`.
+
+Пошаговая настройка VPS: [10-production-infra.md](10-production-infra.md).
+Backup/restore: [11-backups.md](11-backups.md).
+
 ## Caddy
 
 Caddy отвечает за:

@@ -1,0 +1,48 @@
+{
+	email admin@example.com
+}
+
+staging.example.com {
+	encode zstd gzip
+
+	log {
+		output file /var/log/caddy/work-planner-staging.access.log
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 10MB
+		}
+
+		reverse_proxy 127.0.0.1:3001
+	}
+
+	handle {
+		root * /var/www/work-planner/staging/frontend
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+app.example.com {
+	encode zstd gzip
+
+	log {
+		output file /var/log/caddy/work-planner-production.access.log
+	}
+
+	handle /api/* {
+		request_body {
+			max_size 10MB
+		}
+
+		reverse_proxy 127.0.0.1:3000
+	}
+
+	handle {
+		root * /var/www/work-planner/production/frontend
+		try_files {path} /index.html
+		file_server
+	}
+}
+
