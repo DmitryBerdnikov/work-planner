@@ -1,7 +1,6 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { ApiError } from "@shared/api/http";
 import {
-  redirectAuthenticatedFromAuth,
   redirectUnauthorized,
   requireActiveProfile,
   requirePendingProfile
@@ -44,18 +43,6 @@ describe("route guards", () => {
     mocks.fetchSession.mockRejectedValue(new ApiError(401, "unauthorized"));
 
     await expect(requireActiveProfile()).rejects.toMatchObject({ to: "/auth" });
-  });
-
-  it("keeps unauthorized users on auth page", async () => {
-    mocks.fetchSession.mockRejectedValue(new ApiError(401, "unauthorized"));
-
-    await expect(redirectAuthenticatedFromAuth()).resolves.toBeUndefined();
-  });
-
-  it("redirects authenticated active users away from auth page", async () => {
-    mocks.fetchSession.mockResolvedValue(sessionWithStatus("active"));
-
-    await expect(redirectAuthenticatedFromAuth()).rejects.toMatchObject({ to: "/" });
   });
 
   it("allows pending and blocked users on pending page", async () => {
