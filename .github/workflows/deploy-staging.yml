@@ -66,7 +66,6 @@ jobs:
           rsync -az --delete \
             -e "ssh -i ~/.ssh/work-planner -p $SSH_PORT -o StrictHostKeyChecking=accept-new" \
             --exclude '.git/' \
-            --exclude 'node_modules/' \
             --exclude '.data/' \
             --exclude 'apps/web/dist/' \
             ./ "$DEPLOY_USER@$DEPLOY_HOST:$APP_ROOT/backend/current/"
@@ -80,4 +79,4 @@ jobs:
       - name: Migrate and restart
         run: |
           ssh -i ~/.ssh/work-planner -p "$SSH_PORT" -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
-            "cd '$APP_ROOT/backend/current' && corepack enable && pnpm install --frozen-lockfile && umask 0002 && DATABASE_PATH='$APP_ROOT/data/app.sqlite' pnpm db:migrate && (chmod 660 '$APP_ROOT'/data/app.sqlite* 2>/dev/null || true) && sudo systemctl restart '$SERVICE_NAME' && curl -fsS '$HEALTH_URL'"
+            "cd '$APP_ROOT/backend/current' && corepack enable && umask 0002 && DATABASE_PATH='$APP_ROOT/data/app.sqlite' pnpm db:migrate && (chmod 660 '$APP_ROOT'/data/app.sqlite* 2>/dev/null || true) && sudo systemctl restart '$SERVICE_NAME' && curl -fsS '$HEALTH_URL'"
