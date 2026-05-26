@@ -1,9 +1,12 @@
+import "fake-indexeddb/auto";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { onlineManager, QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import type { Client } from "@work-planner/shared";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { localDb } from "@modules/sync";
 import { ClientsPage } from "./index";
 
-const client = {
+const client: Client = {
   id: "550e8400-e29b-41d4-a716-446655440000",
   userId: "550e8400-e29b-41d4-a716-446655440001",
   name: "Анна",
@@ -23,12 +26,19 @@ const client = {
 };
 
 describe("ClientsPage", () => {
-  afterEach(() => {
+  beforeEach(async () => {
+    onlineManager.setOnline(true);
+    await clearLocalDb();
+  });
+
+  afterEach(async () => {
+    onlineManager.setOnline(true);
     vi.restoreAllMocks();
+    await clearLocalDb();
   });
 
   it("renders empty state", async () => {
-    mockFetch([{ clients: [] }]);
+    mockSyncFetch();
 
     renderClientsPage();
 
@@ -36,11 +46,8 @@ describe("ClientsPage", () => {
   });
 
   it("renders clients and submits create form", async () => {
-    const fetchMock = mockFetch([
-      { clients: [client] },
-      { client: { ...client, id: "550e8400-e29b-41d4-a716-446655440002", name: "Мария" } },
-      { clients: [client, { ...client, id: "550e8400-e29b-41d4-a716-446655440002", name: "Мария" }] }
-    ]);
+    await localDb.clients.put(client);
+    const fetchMock = mockSyncFetch();
 
     renderClientsPage();
 
@@ -51,11 +58,117 @@ describe("ClientsPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Добавить" }));
 
     await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining("/api/clients"),
-        expect.objectContaining({ method: "POST" })
-      );
+      expect(screen.getByText("Мария")).toBeInTheDocument();
     });
+    expect(fetchMock).toHaveBeenCalledWith(
+      expect.stringContaining("/api/sync/push"),
+      expect.objectContaining({ method: "POST" })
+    );
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("/api/clients"))).toBe(false);
+  });
+
+  it("archives and restores clients locally", async () => {
+    await localDb.clients.put(client);
+    mockSyncFetch();
+
+    renderClientsPage();
+
+    expect(await screen.findByText("Анна")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Архивировать Анна" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Анна")).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Архив"));
+
+    expect(await screen.findByText("Анна")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Вернуть Анна из архива" }));
+
+    await waitFor(() => {
+      expect(screen.getByText("Анна")).toBeInTheDocument();
+    });
+  });
+
+  it("keeps local changes visible when sync fails", async () => {
+    mockSyncFetch({ failPush: true });
+
+    renderClientsPage();
+
+    fireEvent.change(screen.getByLabelText("Имя"), { target: { value: "Мария" } });
+    fireEvent.click(screen.getByRole("button", { name: "Добавить" }));
+
+    expect(await screen.findByText("Мария")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Добавить" })).toBeEnabled();
+    expect(screen.queryByText("Сохранение...")).not.toBeInTheDocument();
+    expect(screen.queryByText("sync_failed")).not.toBeInTheDocument();
+    expect(await screen.findByText("Синхронизация не удалась")).toBeInTheDocument();
+  });
+
+  it("saves clients while TanStack Query is offline", async () => {
+    onlineManager.setOnline(false);
+    mockSyncFetch();
+
+    renderClientsPage();
+
+    fireEvent.change(screen.getByLabelText("Имя"), { target: { value: "Мария" } });
+    fireEvent.click(screen.getByRole("button", { name: "Добавить" }));
+
+    expect(await screen.findByText("Мария")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Добавить" })).toBeEnabled();
+    expect(screen.queryByText("Сохранение...")).not.toBeInTheDocument();
+  });
+
+  it("does not keep create form busy while sync is still running", async () => {
+    mockSyncFetch({ hangPush: true });
+
+    renderClientsPage();
+
+    fireEvent.change(screen.getByLabelText("Имя"), { target: { value: "Мария" } });
+    fireEvent.click(screen.getByRole("button", { name: "Добавить" }));
+
+    expect(await screen.findByText("Мария")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Добавить" })).toBeEnabled();
+    expect(screen.queryByText("Сохранение...")).not.toBeInTheDocument();
+  });
+
+  it("does not keep archive and restore actions busy while sync is still running", async () => {
+    await localDb.clients.put(client);
+    mockSyncFetch({ hangPush: true });
+
+    renderClientsPage();
+
+    expect(await screen.findByText("Анна")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Архивировать Анна" }));
+
+    await waitFor(() => {
+      expect(screen.queryByText("Анна")).not.toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText("Архив"));
+
+    const restoreButton = await screen.findByRole("button", { name: "Вернуть Анна из архива" });
+    expect(restoreButton).toBeEnabled();
+
+    fireEvent.click(restoreButton);
+
+    expect(await screen.findByRole("button", { name: "Архивировать Анна" })).toBeEnabled();
+  });
+
+  it("does not import generated clients CRUD API in clients modules", () => {
+    const sources = import.meta.glob("/src/modules/clients/**/*.{ts,tsx}", {
+      query: "?raw",
+      import: "default",
+      eager: true
+    }) as Record<string, string>;
+    const generatedCrudNames = /\b(fetchClients|createClient|updateClient|archiveClient|restoreClient)\b/;
+    const offenders = Object.entries(sources)
+      .filter(([, source]) => source.includes("@shared/api/generated/work-planner-api") && generatedCrudNames.test(source))
+      .map(([path]) => path);
+
+    expect(offenders).toEqual([]);
   });
 });
 
@@ -74,12 +187,42 @@ function renderClientsPage() {
   );
 }
 
-function mockFetch(payloads: unknown[]) {
-  const fetchMock = vi.fn(async () => {
-    const payload = payloads.shift() ?? { clients: [] };
+async function clearLocalDb() {
+  await localDb.clients.clear();
+  await localDb.appointments.clear();
+  await localDb.outbox.clear();
+  await localDb.syncMeta.clear();
+}
 
-    return new Response(JSON.stringify(payload), {
-      status: 200,
+function mockSyncFetch(options: { failPush?: boolean; hangPush?: boolean } = {}) {
+  const fetchMock = vi.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+    const urlString = String(url);
+
+    if (urlString.includes("/api/sync/push")) {
+      if (options.hangPush) {
+        return new Promise<Response>(() => undefined);
+      }
+
+      if (options.failPush) {
+        return new Response(JSON.stringify({ error: "sync_failed" }), {
+          status: 500,
+          headers: { "content-type": "application/json" }
+        });
+      }
+
+      return jsonResponse({ applied: [] });
+    }
+
+    if (urlString.includes("/api/sync/pull")) {
+      return jsonResponse({
+        clients: [],
+        appointments: [],
+        serverTimestamp: "2026-05-25T12:00:00.000Z"
+      });
+    }
+
+    return new Response(JSON.stringify({ error: "unexpected_request", method: init?.method }), {
+      status: 500,
       headers: { "content-type": "application/json" }
     });
   });
@@ -87,4 +230,11 @@ function mockFetch(payloads: unknown[]) {
   vi.stubGlobal("fetch", fetchMock);
 
   return fetchMock;
+}
+
+function jsonResponse(payload: unknown) {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { "content-type": "application/json" }
+  });
 }

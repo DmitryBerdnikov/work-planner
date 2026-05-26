@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarPlus } from "lucide-react";
 import { useForm } from "react-hook-form";
-import type { Client } from "@shared/api/generated/work-planner-api";
+import type { Client } from "@work-planner/shared";
 import { Button } from "@shared/ui/button";
 import { FormInput } from "@shared/ui/form-input";
 import {

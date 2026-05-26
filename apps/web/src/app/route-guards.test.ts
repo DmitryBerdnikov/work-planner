@@ -24,6 +24,8 @@ vi.mock("@shared/api/generated/work-planner-api", () => ({
 describe("route guards", () => {
   afterEach(() => {
     vi.clearAllMocks();
+    vi.restoreAllMocks();
+    localStorage.clear();
   });
 
   it("allows active users into protected routes", async () => {
@@ -43,6 +45,25 @@ describe("route guards", () => {
     mocks.fetchSession.mockRejectedValue(new ApiError(401, "unauthorized"));
 
     await expect(requireActiveProfile()).rejects.toMatchObject({ to: "/auth" });
+  });
+
+  it("uses the last active session for protected routes when offline", async () => {
+    const session = sessionWithStatus("active");
+    mocks.fetchSession.mockResolvedValueOnce(session);
+    await expect(requireActiveProfile()).resolves.toEqual(session);
+
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+    mocks.fetchSession.mockRejectedValueOnce(new TypeError("Failed to fetch"));
+
+    await expect(requireActiveProfile()).resolves.toEqual(session);
+  });
+
+  it("does not allow offline protected routes without a cached active session", async () => {
+    const offlineError = new TypeError("Failed to fetch");
+    vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+    mocks.fetchSession.mockRejectedValue(offlineError);
+
+    await expect(requireActiveProfile()).rejects.toEqual(offlineError);
   });
 
   it("allows pending and blocked users on pending page", async () => {

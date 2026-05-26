@@ -1,15 +1,15 @@
 import { useMutation } from "@tanstack/react-query";
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
-import { createAppointment, updateAppointment } from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
 import {
   mapFormToCreatePayload,
   mapFormToUpdatePayload,
   type AppointmentFormPayload
 } from "../model/appointments-form";
+import { createLocalAppointment, updateLocalAppointment } from "../model/appointments-local";
 import { useInvalidateAppointments } from "./use-invalidate-appointments";
 
 type UseSaveAppointmentOptions = {
-  editingAppointment: AppointmentsResponseAppointmentsItem | null;
+  editingAppointment: AppointmentWithComputedStatus | null;
   onSuccess?: () => void;
 };
 
@@ -19,11 +19,12 @@ export const useSaveAppointment = ({ editingAppointment, onSuccess }: UseSaveApp
   return useMutation({
     mutationFn: (payload: AppointmentFormPayload) => {
       if (editingAppointment) {
-        return updateAppointment(editingAppointment.id, mapFormToUpdatePayload(payload));
+        return updateLocalAppointment(editingAppointment, mapFormToUpdatePayload(payload));
       }
 
-      return createAppointment(mapFormToCreatePayload(payload));
+      return createLocalAppointment(mapFormToCreatePayload(payload));
     },
+    networkMode: "always",
     onSuccess: async () => {
       await invalidateAppointments();
       onSuccess?.();

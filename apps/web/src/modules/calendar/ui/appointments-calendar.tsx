@@ -5,14 +5,14 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
 import { mapAppointmentsToCalendarEvents } from "../model/calendar-events";
 import "./calendar.css";
 
 type AppointmentsCalendarProps = {
-  appointments: AppointmentsResponseAppointmentsItem[];
+  appointments: AppointmentWithComputedStatus[];
   onDatesChange: (range: DatesSetArg) => void;
-  onEventClick: (appointment: AppointmentsResponseAppointmentsItem) => void;
+  onEventClick: (appointment: AppointmentWithComputedStatus) => void;
   onDateClick: (startsAt: string) => void;
 };
 
@@ -44,7 +44,7 @@ export const AppointmentsCalendar = ({
         events={events}
         datesSet={onDatesChange}
         eventClick={(arg: EventClickArg) => {
-          const appointment = arg.event.extendedProps.appointment as AppointmentsResponseAppointmentsItem | undefined;
+          const appointment = arg.event.extendedProps.appointment as AppointmentWithComputedStatus | undefined;
 
           if (appointment) {
             onEventClick(appointment);

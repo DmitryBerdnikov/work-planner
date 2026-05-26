@@ -1,19 +1,38 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DatesSetArg } from "@fullcalendar/core";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
 import { appointmentsQueries, useCancelAppointment } from "@modules/appointments";
+import { syncWorkPlanner } from "@modules/sync";
 import { defaultCalendarVisibleRange, toCalendarVisibleRange, type CalendarVisibleRange } from "../model/calendar-range";
 
 export const useCalendarPage = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [visibleRange, setVisibleRange] = useState<CalendarVisibleRange>(defaultCalendarVisibleRange);
-  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentsResponseAppointmentsItem | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<AppointmentWithComputedStatus | null>(null);
+  const syncRunIdRef = useRef(0);
 
   const appointmentsQuery = useQuery(appointmentsQueries.list(visibleRange));
   const clientsQuery = useQuery(appointmentsQueries.clientsForSelect());
-  const { handleCancel, isCancelBusy } = useCancelAppointment();
+  const startSync = useCallback(() => {
+    const syncRunId = syncRunIdRef.current + 1;
+    syncRunIdRef.current = syncRunId;
+
+    syncWorkPlanner()
+      .then(async () => {
+        if (syncRunIdRef.current === syncRunId) {
+          await queryClient.invalidateQueries({ queryKey: appointmentsQueries.all });
+        }
+      })
+      .catch(() => undefined);
+  }, [queryClient]);
+  const { handleCancel, isCancelBusy } = useCancelAppointment({
+    onSuccess: () => {
+      startSync();
+    }
+  });
 
   const appointments = appointmentsQuery.data?.appointments ?? [];
 
@@ -26,11 +45,29 @@ export const useCalendarPage = () => {
     setVisibleRange(toCalendarVisibleRange(arg.start, arg.end));
   };
 
-  const handleEventClick = (appointment: AppointmentsResponseAppointmentsItem) => {
+  useEffect(() => {
+    let isMounted = true;
+    const syncRunId = syncRunIdRef.current + 1;
+    syncRunIdRef.current = syncRunId;
+
+    syncWorkPlanner()
+      .then(async () => {
+        if (isMounted && syncRunIdRef.current === syncRunId) {
+          await queryClient.invalidateQueries({ queryKey: appointmentsQueries.all });
+        }
+      })
+      .catch(() => undefined);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [queryClient]);
+
+  const handleEventClick = (appointment: AppointmentWithComputedStatus) => {
     setSelectedAppointment(appointment);
   };
 
-  const handleNavigateToEdit = (appointment: AppointmentsResponseAppointmentsItem) => {
+  const handleNavigateToEdit = (appointment: AppointmentWithComputedStatus) => {
     navigate({ to: "/appointments", search: { editId: appointment.id } });
   };
 
@@ -41,7 +78,7 @@ export const useCalendarPage = () => {
     });
   };
 
-  const handleCancelSelected = async (appointment: AppointmentsResponseAppointmentsItem) => {
+  const handleCancelSelected = async (appointment: AppointmentWithComputedStatus) => {
     await handleCancel(appointment);
     setSelectedAppointment((current) => (current?.id === appointment.id ? null : current));
   };

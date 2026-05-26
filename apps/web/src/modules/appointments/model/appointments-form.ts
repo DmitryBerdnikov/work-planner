@@ -1,9 +1,5 @@
 import { z } from "zod";
-import type {
-  AppointmentsResponseAppointmentsItem,
-  CreateAppointmentPayload,
-  UpdateAppointmentPayload
-} from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus, CreateAppointmentPayload, UpdateAppointmentPayload } from "@work-planner/shared";
 
 export const appointmentFormSchema = z.object({
   title: z.string().trim().min(1, "Укажите название"),
@@ -31,7 +27,7 @@ export const emptyAppointmentFormValues = (): AppointmentFormValues => ({
   note: ""
 });
 
-export const mapAppointmentToFormValues = (appointment: AppointmentsResponseAppointmentsItem): AppointmentFormValues => {
+export const mapAppointmentToFormValues = (appointment: AppointmentWithComputedStatus): AppointmentFormValues => {
   return {
     title: appointment.title,
     startsAtLocal: toDateTimeLocalInputValue(appointment.startsAt),

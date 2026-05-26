@@ -15,6 +15,7 @@ export const AppointmentsPage = () => {
     clients,
     clientsQuery,
     clientNameById,
+    syncStatus,
     editingAppointment,
     initialFormValues,
     isSaving,
@@ -40,7 +41,8 @@ export const AppointmentsPage = () => {
             </p>
           </div>
           <div className="rounded-card border border-border bg-surface-muted px-4 py-3 text-sm font-bold text-text-muted">
-            {appointments.length} в списке
+            <div>{appointments.length} в списке</div>
+            <div className="mt-1 text-xs font-semibold">{syncStatusLabel[syncStatus]}</div>
           </div>
         </div>
       </header>
@@ -86,3 +88,9 @@ export const AppointmentsPage = () => {
     </div>
   );
 };
+
+const syncStatusLabel = {
+  synced: "Синхронизировано",
+  pending: "Ожидает синхронизации",
+  failed: "Синхронизация не удалась"
+} as const;

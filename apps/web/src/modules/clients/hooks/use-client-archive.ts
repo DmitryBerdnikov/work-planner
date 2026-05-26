@@ -1,20 +1,32 @@
 import { useMutation } from "@tanstack/react-query";
 import type { Client } from "@work-planner/shared";
-import { archiveClient, restoreClient } from "@shared/api/generated/work-planner-api";
+import { archiveLocalClient, restoreLocalClient } from "../model/clients-local";
 import { useInvalidateClients } from "./use-invalidate-clients";
 
-export const useClientArchive = () => {
+type UseClientArchiveOptions = {
+  onSuccess?: () => void;
+};
+
+export const useClientArchive = (options: UseClientArchiveOptions = {}) => {
   const invalidateClients = useInvalidateClients();
 
   const archiveClientMutation = useMutation({
-    mutationFn: (client: Client) => archiveClient(client.id),
-    onSuccess: invalidateClients,
+    mutationFn: (client: Client) => archiveLocalClient(client),
+    networkMode: "always",
+    onSuccess: async () => {
+      await invalidateClients();
+      options.onSuccess?.();
+    },
     retry: false
   });
 
   const restoreClientMutation = useMutation({
-    mutationFn: (client: Client) => restoreClient(client.id),
-    onSuccess: invalidateClients,
+    mutationFn: (client: Client) => restoreLocalClient(client),
+    networkMode: "always",
+    onSuccess: async () => {
+      await invalidateClients();
+      options.onSuccess?.();
+    },
     retry: false
   });
 

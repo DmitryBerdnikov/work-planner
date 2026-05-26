@@ -5,7 +5,7 @@ import { clientsQueries } from "../model/clients-queries";
 export const useInvalidateClients = () => {
   const queryClient = useQueryClient();
 
-  return useCallback(() => {
-    queryClient.invalidateQueries({ queryKey: clientsQueries.all })
+  return useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: clientsQueries.all });
   }, [queryClient]);
 };

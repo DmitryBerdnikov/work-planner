@@ -8,6 +8,7 @@ export const ClientsPage = () => {
   const {
     clients,
     clientsQuery,
+    syncStatus,
     query,
     includeArchived,
     editingClient,
@@ -38,7 +39,8 @@ export const ClientsPage = () => {
             </p>
           </div>
           <div className="rounded-card border border-border bg-surface-muted px-4 py-3 text-sm font-bold text-text-muted">
-            {clients.length} в списке
+            <div>{clients.length} в списке</div>
+            <div className="mt-1 text-xs font-semibold">{syncStatusLabel[syncStatus]}</div>
           </div>
         </div>
       </header>
@@ -69,11 +71,11 @@ export const ClientsPage = () => {
           </div>
 
           <div className="space-y-3">
-            {clientsQuery.isLoading && <Notice title="Загрузка клиентов" description="Получаем данные с сервера." />}
+            {clientsQuery.isLoading && <Notice title="Загрузка клиентов" description="Читаем локальную базу." />}
             {clientsQuery.isError && (
               <Notice
                 title="Клиенты недоступны"
-                description="Проверьте вход в аккаунт и доступ к API. Новые аккаунты должны быть активированы."
+                description="Не удалось прочитать локальную базу клиентов."
               />
             )}
             {!clientsQuery.isLoading && !clientsQuery.isError && clients.length === 0 && (
@@ -104,3 +106,9 @@ export const ClientsPage = () => {
     </div>
   );
 };
+
+const syncStatusLabel = {
+  synced: "Синхронизировано",
+  pending: "Ожидает синхронизации",
+  failed: "Синхронизация не удалась"
+} as const;

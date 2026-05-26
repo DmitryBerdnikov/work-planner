@@ -1,19 +1,27 @@
 import { useMutation } from "@tanstack/react-query";
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
-import { cancelAppointment } from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
+import { cancelLocalAppointment } from "../model/appointments-local";
 import { useInvalidateAppointments } from "./use-invalidate-appointments";
 
-export const useCancelAppointment = () => {
+type UseCancelAppointmentOptions = {
+  onSuccess?: () => void;
+};
+
+export const useCancelAppointment = (options: UseCancelAppointmentOptions = {}) => {
   const invalidateAppointments = useInvalidateAppointments();
 
   const cancelAppointmentMutation = useMutation({
-    mutationFn: (appointment: AppointmentsResponseAppointmentsItem) => cancelAppointment(appointment.id),
-    onSuccess: invalidateAppointments,
+    mutationFn: (appointment: AppointmentWithComputedStatus) => cancelLocalAppointment(appointment),
+    networkMode: "always",
+    onSuccess: async () => {
+      await invalidateAppointments();
+      options.onSuccess?.();
+    },
     retry: false
   });
 
   return {
-    handleCancel: cancelAppointmentMutation.mutate,
+    handleCancel: cancelAppointmentMutation.mutateAsync,
     isCancelBusy: cancelAppointmentMutation.isPending
   };
 };

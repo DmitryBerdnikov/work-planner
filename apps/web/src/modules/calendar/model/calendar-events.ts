@@ -1,16 +1,16 @@
 import type { EventInput } from "@fullcalendar/core";
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
 
 export const DEFAULT_EVENT_DURATION_MS = 60 * 60 * 1000;
 
 export const mapAppointmentsToCalendarEvents = (
-  appointments: AppointmentsResponseAppointmentsItem[]
+  appointments: AppointmentWithComputedStatus[]
 ): EventInput[] => {
   return appointments.map(mapAppointmentToCalendarEvent);
 };
 
 export const mapAppointmentToCalendarEvent = (
-  appointment: AppointmentsResponseAppointmentsItem
+  appointment: AppointmentWithComputedStatus
 ): EventInput => {
   const start = new Date(appointment.startsAt);
   const end = new Date(start.getTime() + DEFAULT_EVENT_DURATION_MS);

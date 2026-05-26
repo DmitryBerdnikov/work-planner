@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
+import { syncWorkPlanner, type WorkPlannerSyncStatus } from "@modules/sync";
 import {
   emptyAppointmentFormValues,
   mapAppointmentToFormValues,
@@ -10,17 +11,47 @@ import { defaultAppointmentsListParams } from "../model/appointments-queries";
 import { useAppointmentClients } from "./use-appointment-clients";
 import { useAppointmentsList } from "./use-appointments-list";
 import { useCancelAppointment } from "./use-cancel-appointment";
+import { useInvalidateAppointments } from "./use-invalidate-appointments";
 import { useSaveAppointment } from "./use-save-appointment";
 
 export const useAppointmentsPage = (search: AppointmentsPageSearch = {}) => {
-  const [editingAppointment, setEditingAppointment] = useState<AppointmentsResponseAppointmentsItem | null>(null);
+  const [editingAppointment, setEditingAppointment] = useState<AppointmentWithComputedStatus | null>(null);
+  const [syncStatus, setSyncStatus] = useState<WorkPlannerSyncStatus>("pending");
+  const syncRunIdRef = useRef(0);
   const { appointments, appointmentsQuery } = useAppointmentsList(defaultAppointmentsListParams);
   const { clients, clientsQuery } = useAppointmentClients();
-  const { handleCancel, isCancelBusy } = useCancelAppointment();
+  const invalidateAppointments = useInvalidateAppointments();
+
+  const startSync = useCallback(() => {
+    const syncRunId = syncRunIdRef.current + 1;
+    syncRunIdRef.current = syncRunId;
+    setSyncStatus("pending");
+
+    syncWorkPlanner()
+      .then(async (result) => {
+        if (syncRunIdRef.current === syncRunId) {
+          setSyncStatus(result.status);
+        }
+
+        await invalidateAppointments();
+      })
+      .catch(() => {
+        if (syncRunIdRef.current === syncRunId) {
+          setSyncStatus("failed");
+        }
+      });
+  }, [invalidateAppointments]);
+
+  const { handleCancel, isCancelBusy } = useCancelAppointment({
+    onSuccess: startSync
+  });
 
   const saveAppointmentMutation = useSaveAppointment({
     editingAppointment,
-    onSuccess: () => setEditingAppointment(null)
+    onSuccess: () => {
+      setEditingAppointment(null);
+      startSync();
+    }
   });
 
   const clientNameById = useMemo(() => {
@@ -39,6 +70,32 @@ export const useAppointmentsPage = (search: AppointmentsPageSearch = {}) => {
     }
   }, [appointments, search.editId]);
 
+  useEffect(() => {
+    let isMounted = true;
+    const syncRunId = syncRunIdRef.current + 1;
+    syncRunIdRef.current = syncRunId;
+    setSyncStatus("pending");
+
+    syncWorkPlanner()
+      .then(async (result) => {
+        if (!isMounted || syncRunIdRef.current !== syncRunId) {
+          return;
+        }
+
+        setSyncStatus(result.status);
+        await invalidateAppointments();
+      })
+      .catch(() => {
+        if (isMounted && syncRunIdRef.current === syncRunId) {
+          setSyncStatus("failed");
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [invalidateAppointments]);
+
   const initialFormValues = editingAppointment
     ? mapAppointmentToFormValues(editingAppointment)
     : search.startsAt
@@ -48,7 +105,7 @@ export const useAppointmentsPage = (search: AppointmentsPageSearch = {}) => {
         }
       : emptyAppointmentFormValues();
 
-  const handleEdit = (appointment: AppointmentsResponseAppointmentsItem) => {
+  const handleEdit = (appointment: AppointmentWithComputedStatus) => {
     setEditingAppointment(appointment);
   };
 
@@ -62,6 +119,7 @@ export const useAppointmentsPage = (search: AppointmentsPageSearch = {}) => {
     clients,
     clientsQuery,
     clientNameById,
+    syncStatus,
     editingAppointment,
     initialFormValues,
     isSaving: saveAppointmentMutation.isPending,

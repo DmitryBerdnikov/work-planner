@@ -1,5 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
-import { FetchClientsIncludeArchived, fetchAppointments, fetchClients } from "@shared/api/generated/work-planner-api";
+import { listLocalClients } from "@modules/clients";
+import { listLocalAppointments } from "./appointments-local";
 
 export type AppointmentsListParams = {
   from?: string;
@@ -13,20 +14,15 @@ export const appointmentsQueries = {
   list: (params: AppointmentsListParams = defaultAppointmentsListParams) =>
     queryOptions({
       queryKey: [...rootKey, "list", params] as const,
-      queryFn: () =>
-        fetchAppointments({
-          from: params.from,
-          to: params.to
-        }),
+      queryFn: async () => ({ appointments: await listLocalAppointments(params) }),
+      networkMode: "always",
       retry: false
     }),
   clientsForSelect: () =>
     queryOptions({
       queryKey: [...rootKey, "clients-for-select"] as const,
-      queryFn: () =>
-        fetchClients({
-          includeArchived: FetchClientsIncludeArchived.false
-        }),
+      queryFn: async () => ({ clients: await listLocalClients({ query: "", includeArchived: false }) }),
+      networkMode: "always",
       retry: false
     })
 };

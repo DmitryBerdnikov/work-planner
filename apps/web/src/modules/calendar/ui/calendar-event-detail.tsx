@@ -1,15 +1,15 @@
-import type { AppointmentsResponseAppointmentsItem } from "@shared/api/generated/work-planner-api";
+import type { AppointmentWithComputedStatus } from "@work-planner/shared";
 import { CalendarClock, CircleDollarSign, Pencil, Plus, XCircle } from "lucide-react";
 import { calculateRemainingAmount, formatMoneyMinor } from "@work-planner/shared";
 import { cn } from "@shared/lib/cn";
 import { Button } from "@shared/ui/button";
 
 type CalendarEventDetailProps = {
-  appointment: AppointmentsResponseAppointmentsItem | null;
+  appointment: AppointmentWithComputedStatus | null;
   clientName?: string;
   isCancelBusy: boolean;
-  onEdit: (appointment: AppointmentsResponseAppointmentsItem) => void;
-  onCancel: (appointment: AppointmentsResponseAppointmentsItem) => void;
+  onEdit: (appointment: AppointmentWithComputedStatus) => void;
+  onCancel: (appointment: AppointmentWithComputedStatus) => void;
   onCreate: () => void;
 };
 

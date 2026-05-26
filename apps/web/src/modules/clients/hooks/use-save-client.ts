@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import type { Client, CreateClientPayload } from "@work-planner/shared";
-import { createClient, updateClient } from "@shared/api/generated/work-planner-api";
+import { createLocalClient, updateLocalClient } from "../model/clients-local";
 import { useInvalidateClients } from "./use-invalidate-clients";
 
 type UseSaveClientOptions = {
@@ -14,11 +14,12 @@ export const useSaveClient = ({ editingClient, onSuccess }: UseSaveClientOptions
   return useMutation({
     mutationFn: (payload: CreateClientPayload) => {
       if (editingClient) {
-        return updateClient(editingClient.id, payload);
+        return updateLocalClient(editingClient, payload);
       }
 
-      return createClient(payload);
+      return createLocalClient(payload);
     },
+    networkMode: "always",
     onSuccess: async () => {
       await invalidateClients();
       onSuccess?.();
