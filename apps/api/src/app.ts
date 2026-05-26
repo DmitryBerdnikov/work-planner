@@ -8,6 +8,7 @@ import { appointmentsRoutes } from "./routes/appointments";
 import { clientsRoutes } from "./routes/clients";
 import { healthRoutes } from "./routes/health";
 import { sessionRoutes } from "./routes/session";
+import { syncRoutes } from "./routes/sync";
 
 export const app = new OpenAPIHono<AppBindings>();
 
@@ -29,6 +30,7 @@ app.route("/api", healthRoutes);
 app.route("/api", sessionRoutes);
 app.route("/api", clientsRoutes);
 app.route("/api", appointmentsRoutes);
+app.route("/api", syncRoutes);
 
 app.doc("/api/openapi.json", {
   openapi: "3.0.0",

@@ -272,6 +272,134 @@ export type UpdateAppointmentPayload = {
   customData?: UpdateAppointmentPayloadCustomData;
 };
 
+export type SyncPushPayloadPatchesItemEntity = typeof SyncPushPayloadPatchesItemEntity[keyof typeof SyncPushPayloadPatchesItemEntity];
+
+
+export const SyncPushPayloadPatchesItemEntity = {
+  client: 'client',
+  appointment: 'appointment',
+} as const;
+
+export type SyncPushPayloadPatchesItemOperation = typeof SyncPushPayloadPatchesItemOperation[keyof typeof SyncPushPayloadPatchesItemOperation];
+
+
+export const SyncPushPayloadPatchesItemOperation = {
+  create: 'create',
+  update: 'update',
+  delete: 'delete',
+} as const;
+
+export type SyncPushPayloadPatchesItemChangedFields = {[key: string]: unknown | null};
+
+export type SyncPushPayloadPatchesItem = {
+  id: string;
+  entity: SyncPushPayloadPatchesItemEntity;
+  entityId: string;
+  operation: SyncPushPayloadPatchesItemOperation;
+  changedFields?: SyncPushPayloadPatchesItemChangedFields;
+  /** @minimum 0 */
+  baseRevision: number;
+  clientTimestamp: string;
+};
+
+export type SyncPushPayload = {
+  patches: SyncPushPayloadPatchesItem[];
+};
+
+export type SyncPushResponseAppliedItemEntity = typeof SyncPushResponseAppliedItemEntity[keyof typeof SyncPushResponseAppliedItemEntity];
+
+
+export const SyncPushResponseAppliedItemEntity = {
+  client: 'client',
+  appointment: 'appointment',
+} as const;
+
+export type SyncPushResponseAppliedItem = {
+  id: string;
+  entity: SyncPushResponseAppliedItemEntity;
+  entityId: string;
+  /** @minimum 0 */
+  revision: number;
+  updatedAt: string;
+};
+
+export type SyncPushResponse = {
+  applied: SyncPushResponseAppliedItem[];
+};
+
+export type SyncPullResponseClientsItemCustomData = {[key: string]: unknown | null};
+
+export type SyncPullResponseClientsItem = {
+  id: string;
+  userId: string;
+  /** @minLength 1 */
+  name: string;
+  label: string;
+  city: string;
+  phone: string;
+  telegram: string;
+  vk: string;
+  instagram: string;
+  note: string;
+  customData: SyncPullResponseClientsItemCustomData;
+  /** @nullable */
+  archivedAt: string | null;
+  /** @nullable */
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  /** @minimum 0 */
+  revision: number;
+};
+
+export type SyncPullResponseAppointmentsItemType = typeof SyncPullResponseAppointmentsItemType[keyof typeof SyncPullResponseAppointmentsItemType];
+
+
+export const SyncPullResponseAppointmentsItemType = {
+  work: 'work',
+  personal: 'personal',
+} as const;
+
+export type SyncPullResponseAppointmentsItemStatus = typeof SyncPullResponseAppointmentsItemStatus[keyof typeof SyncPullResponseAppointmentsItemStatus];
+
+
+export const SyncPullResponseAppointmentsItemStatus = {
+  scheduled: 'scheduled',
+  cancelled: 'cancelled',
+} as const;
+
+export type SyncPullResponseAppointmentsItemCustomData = {[key: string]: unknown | null};
+
+export type SyncPullResponseAppointmentsItem = {
+  id: string;
+  userId: string;
+  /** @nullable */
+  clientId: string | null;
+  startsAt: string;
+  /** @minLength 1 */
+  title: string;
+  type: SyncPullResponseAppointmentsItemType;
+  status: SyncPullResponseAppointmentsItemStatus;
+  /** @minimum 0 */
+  sessionAmount: number;
+  /** @minimum 0 */
+  prepaymentAmount: number;
+  note?: string;
+  customData?: SyncPullResponseAppointmentsItemCustomData;
+  /** @nullable */
+  deletedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  /** @minimum 0 */
+  revision: number;
+};
+
+export type SyncPullResponse = {
+  clients: SyncPullResponseClientsItem[];
+  appointments: SyncPullResponseAppointmentsItem[];
+  serverTimestamp: string;
+};
+
 export type FetchClientsParams = {
 q?: string;
 includeArchived?: FetchClientsIncludeArchived;
@@ -288,6 +416,10 @@ export const FetchClientsIncludeArchived = {
 export type FetchAppointmentsParams = {
 from?: string;
 to?: string;
+};
+
+export type PullSyncParams = {
+since?: string;
 };
 
 export const getFetchHealthUrl = () => {
@@ -530,6 +662,55 @@ export const cancelAppointment = async (id: string, options?: RequestInit): Prom
   {
     ...options,
     method: 'POST'
+
+
+  }
+);}
+
+
+
+export const getPushSyncUrl = () => {
+
+
+
+
+  return `/api/sync/push`
+}
+
+export const pushSync = async (syncPushPayload: SyncPushPayload, options?: RequestInit): Promise<SyncPushResponse> => {
+
+  return workPlannerApi<SyncPushResponse>(getPushSyncUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(syncPushPayload)
+  }
+);}
+
+
+
+export const getPullSyncUrl = (params?: PullSyncParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/sync/pull?${stringifiedParams}` : `/api/sync/pull`
+}
+
+export const pullSync = async (params?: PullSyncParams, options?: RequestInit): Promise<SyncPullResponse> => {
+
+  return workPlannerApi<SyncPullResponse>(getPullSyncUrl(params),
+  {
+    ...options,
+    method: 'GET'
 
 
   }
