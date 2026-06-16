@@ -35,31 +35,53 @@ vi.mock("@tanstack/react-router", async () => {
   };
 });
 
-vi.mock("@fullcalendar/react", () => ({
-  default: ({
-    events,
-    eventClick,
-    dateClick
-  }: {
-    events: Array<{ id: string; title: string; extendedProps: { appointment: typeof appointment } }>;
-    eventClick?: (arg: { event: { extendedProps: { appointment: typeof appointment } } }) => void;
-    dateClick?: (arg: { date: Date }) => void;
-  }) => (
-    <div data-testid="calendar-mock">
-      {events.map((event) => (
-        <button key={event.id} type="button" onClick={() => eventClick?.({ event })}>
-          {event.title}
-        </button>
-      ))}
-      <button
-        type="button"
-        onClick={() => dateClick?.({ date: new Date("2026-05-27T12:00:00.000Z") })}
-      >
-        Слот
-      </button>
-    </div>
-  )
-}));
+vi.mock("@fullcalendar/react", async () => {
+  const React = await vi.importActual<typeof import("react")>("react");
+
+  return {
+    default: ({
+      events,
+      eventClick,
+      dateClick,
+      datesSet
+    }: {
+      events: Array<{ id: string; title: string; extendedProps: { appointment: typeof appointment } }>;
+      eventClick?: (arg: { event: { extendedProps: { appointment: typeof appointment } } }) => void;
+      dateClick?: (arg: { date: Date }) => void;
+      datesSet?: (arg: { start: Date; end: Date }) => void;
+    }) => {
+      const didSetRangeRef = React.useRef(false);
+
+      React.useEffect(() => {
+        if (didSetRangeRef.current) {
+          return;
+        }
+
+        didSetRangeRef.current = true;
+        datesSet?.({
+          start: new Date("2026-05-25T00:00:00.000Z"),
+          end: new Date("2026-06-01T00:00:00.000Z")
+        });
+      }, [datesSet]);
+
+      return (
+        <div data-testid="calendar-mock">
+          {events.map((event) => (
+            <button key={event.id} type="button" onClick={() => eventClick?.({ event })}>
+              {event.title}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => dateClick?.({ date: new Date("2026-05-27T12:00:00.000Z") })}
+          >
+            Слот
+          </button>
+        </div>
+      );
+    }
+  };
+});
 
 describe("CalendarPage", () => {
   beforeEach(async () => {

@@ -5,11 +5,14 @@ import { createWorkPlannerLocalDb, type WorkPlannerLocalDb } from "./local-db";
 import { enqueueOutboxPatch, listPendingOutboxPatches, markOutboxPatchesSynced } from "./outbox";
 import { getLastSuccessfulSyncAt, setLastSuccessfulSyncAt } from "./sync-meta";
 
-const databaseNames: string[] = [];
+const databases: WorkPlannerLocalDb[] = [];
 
 describe("local sync database", () => {
   afterEach(async () => {
-    await Promise.all(databaseNames.splice(0).map((name) => Dexie.delete(name)));
+    await Promise.all(databases.splice(0).map(async (db) => {
+      db.close();
+      await Dexie.delete(db.name);
+    }));
   });
 
   it("creates the Dexie schema for sync foundation tables", () => {
@@ -102,8 +105,9 @@ describe("local sync database", () => {
 
 function createTestDb(): WorkPlannerLocalDb {
   const name = `work-planner-test-${randomId()}`;
-  databaseNames.push(name);
-  return createWorkPlannerLocalDb(name);
+  const db = createWorkPlannerLocalDb(name);
+  databases.push(db);
+  return db;
 }
 
 function randomId(): string {

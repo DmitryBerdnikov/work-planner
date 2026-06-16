@@ -15,6 +15,7 @@
     "db:setup": "pnpm --filter @work-planner/api auth:migrate && pnpm --filter @work-planner/api db:migrate",
     "prepare:shared": "pnpm --filter @work-planner/shared build",
     "test": "pnpm prepare:shared && pnpm --recursive --if-present test",
+    "test:quiet": "pnpm prepare:shared && pnpm --recursive --if-present test:quiet",
     "typecheck": "pnpm prepare:shared && pnpm --recursive --if-present typecheck",
     "lint": "eslint .",
     "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
