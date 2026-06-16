@@ -1,28 +1,9 @@
 # Work Planner — notes for AI agents
 
-## Where to look
-
-- **Business rules & tests:** [docs/06-rules-and-testing.md](docs/06-rules-and-testing.md)
-- **Data model:** [docs/02-data-model.md](docs/02-data-model.md)
-- **Code style:**
-  - [general.md](docs/code-style/general.md) — TypeScript, shared
-  - [backend.md](docs/code-style/backend/backend.md) — `apps/api`
-  - [frontend.md](docs/code-style/frontend/frontend.md) — `apps/web` (Vite, Router, Query)
-  - [react.md](docs/code-style/frontend/react.md) — components, hooks, UI tests
-- **Commits:** [docs/09-commit-conventions.md](docs/09-commit-conventions.md) — `chore`, `bugfix`, `feature`
-- **Architecture plan:** [PLAN.md](PLAN.md)
-
-## Monorepo
-
-| Path | Role |
-| --- | --- |
-| `apps/web` | React + Vite + TanStack Router/Query |
-| `apps/api` | Hono + Drizzle + Better Auth |
-| `packages/shared` | Zod schemas, pure helpers (no DB) |
+Core project information, technology stack, environment configuration, and available commands can be found in: [README.md](README.md)
 
 ## Defaults
 
-- Commit messages: `chore:`, `bugfix:`, or `feature:` per [09-commit-conventions.md](docs/09-commit-conventions.md).
 - Match existing patterns in `apps/web/src` before adding new abstractions.
 - Minimize diff scope; reuse `packages/shared` for contracts and business rules.
 

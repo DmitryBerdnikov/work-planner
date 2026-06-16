@@ -10,7 +10,7 @@ Applies to all files: `apps/web/*`.
 - TanStack Router — routing, [router.tsx](../../../apps/web/src/app/router.tsx)
 - TanStack Query — server state
 - Better Auth — [auth-client.ts](../../../apps/web/src/shared/auth/auth-client.ts)
-- Tailwind — tokens from [07-design-system.md](../../07-design-system.md)
+- Tailwind — tokens from [design-system.md](../../design-system.md)
 - Dexie — offline support (when the layer appears in `src/`)
 
 ## `src/` Structure
@@ -81,7 +81,7 @@ Applies to all files: `apps/web/*`.
 ## Styles
 
 - No inline `style`, except for dynamic values.
-- Mobile-first approach, layouts based on [07-design-system.md](../../07-design-system.md).
+- Mobile-first approach, layouts based on [design-system.md](../../design-system.md).
 
 ## Config
 

@@ -1,7 +1,7 @@
 # Общий стиль кода
 
-- Backend: [backend.md](./backend.md)
-- Frontend: [frontend.md](./frontend.md)
+- Backend: [backend.md](backend/backend.md)
+- Frontend: [frontend.md](frontend/frontend.md)
 
 Applies to all files: `apps/*`, `packages/*`.
 
@@ -17,4 +17,4 @@ Applies to all files: `apps/*`, `packages/*`.
 ## CI
 
 - `pnpm lint` — в т.ч. `@typescript-eslint/consistent-type-definitions: type`.
-- `pnpm typecheck`, `pnpm test` — см. [06-rules-and-testing.md](../06-rules-and-testing.md).
+- `pnpm typecheck`, `pnpm test` — см. [rules-and-testing.md](../rules-and-testing.md).

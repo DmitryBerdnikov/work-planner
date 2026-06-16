@@ -26,7 +26,7 @@ Route handlers should not contain heavy logic — only orchestration.
 ## Database and Auth
 
 - Use a single shared SQLite connection for both Drizzle and Better Auth (avoid two `Database` instances for the same file).
-- Production APIs should only work when `profile.status = active` ([middleware](../../apps/api/src/auth/middleware.ts)).
+- Production APIs should only work when `profile.status = active` ([middleware](../../../apps/api/src/auth/middleware.ts)).
 
 ## Tests
 
