@@ -7,6 +7,15 @@ Core project information, technology stack, environment configuration, and avail
 - Match existing patterns in `apps/web/src` before adding new abstractions.
 - Minimize diff scope; reuse `packages/shared` for contracts and business rules.
 
+## Task workflow
+
+- Active tasks live in `docs/tasks/` and must be linked from `docs/roadmap.md`.
+- Task files should include Problem, Desired Behavior, Current Context, Plan, Tests, Risks, and Result.
+- Keep `docs/roadmap.md` short: active task links in Planned improvements, completed task links in Completed.
+- After finishing a task, wait for user review. If review requests changes, implement them.
+- If the user says the task is done, fill `Result`, move the task document to `docs/archive/` with date prefix (format: `YYYY-MM-DD-task-name.md`), remove it from Planned improvements, and add it to Completed.
+- When archiving a task, update `docs/adr.md` if the task introduced a durable technical or product decision.
+
 ## Local Dev Servers
 
 - Treat local dev servers as long-lived session processes.
@@ -20,3 +29,4 @@ Core project information, technology stack, environment configuration, and avail
 - Do not stop standard dev servers after verification unless the user explicitly asks.
 - Do not start duplicate Vite/API processes on fallback ports like `5174` or `5175` without first checking the standard URL.
 - If a port is busy, inspect the existing server with browser/health checks before starting a replacement.
+

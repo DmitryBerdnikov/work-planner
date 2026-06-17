@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { app } from "../app";
-import { sqlite } from "../db/client";
+import { app } from "../app.js";
+import { sqlite } from "../db/client.js";
 
 const activeUserId = "550e8400-e29b-41d4-a716-446655440000";
 const pendingUserId = "550e8400-e29b-41d4-a716-446655440001";

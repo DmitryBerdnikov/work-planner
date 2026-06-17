@@ -1,4 +1,4 @@
-import type { Appointment, AppointmentComputedStatus } from "./schemas";
+import type { Appointment, AppointmentComputedStatus } from "./schemas/index.js";
 
 type AppointmentStatusInput = Pick<Appointment, "status" | "startsAt">;
 type SalaryAppointmentInput = Pick<Appointment, "type" | "status" | "startsAt" | "sessionAmount">;

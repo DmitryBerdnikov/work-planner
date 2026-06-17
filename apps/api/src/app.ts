@@ -1,14 +1,14 @@
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Scalar } from "@scalar/hono-api-reference";
 import { cors } from "hono/cors";
-import { auth } from "./auth/auth";
-import { attachSession, type AppBindings } from "./auth/middleware";
-import { env } from "./config/env";
-import { appointmentsRoutes } from "./routes/appointments";
-import { clientsRoutes } from "./routes/clients";
-import { healthRoutes } from "./routes/health";
-import { sessionRoutes } from "./routes/session";
-import { syncRoutes } from "./routes/sync";
+import { auth } from "./auth/auth.js";
+import { attachSession, type AppBindings } from "./auth/middleware.js";
+import { env } from "./config/env.js";
+import { appointmentsRoutes } from "./routes/appointments.js";
+import { clientsRoutes } from "./routes/clients.js";
+import { healthRoutes } from "./routes/health.js";
+import { sessionRoutes } from "./routes/session.js";
+import { syncRoutes } from "./routes/sync.js";
 
 export const app = new OpenAPIHono<AppBindings>();
 

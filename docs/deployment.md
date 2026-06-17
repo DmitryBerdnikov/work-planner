@@ -2,59 +2,53 @@
 
 ## Сервер
 
-Целевой VPS:
+Текущий VPS:
 
 ```text
-OS: Linux
 CPU: 1
 RAM: 512 MB
 SSD: 10 GB
-IP: 1
 ```
 
-Под этот сервер выбран легкий self-hosted стек без Supabase, PostgreSQL, Docker Compose и тяжелых BaaS-компонентов.
+Docker пробуем на текущем VPS. Если не хватает RAM или disk, перейти минимум на `1 GB RAM / 20 GB SSD`.
 
 ## Runtime на VPS
 
 Нужно установить:
 
-- Node.js LTS;
+- Docker Engine с Docker Compose plugin;
 - Caddy;
-- systemd используется из ОС;
-- SQLite как библиотека/файл через backend;
-- отдельного пользователя для приложения.
+- отдельного `deploy` user с SSH-доступом и правом запускать Docker;
+- SQLite хранится как файл на host filesystem.
+
+Node.js и pnpm на VPS для runtime больше не нужны. Сборка выполняется в GitHub Actions.
 
 ## Схема
 
 ```text
-Caddy
-  |-- static frontend
-  |-- /api/* -> Hono backend
+Caddy на host
+  |-- /api/* -> backend container
+  |-- /*      -> frontend Nginx container
 
-systemd
-  |-- Node.js backend service
+Docker Compose
+  |-- API image: Hono + Node runtime
+  |-- Web image: Nginx + Vite dist
 
-backend
-  |-- SQLite database file
+SQLite
+  |-- /var/www/work-planner/<env>/data/app.sqlite
 ```
 
 ## Пути
 
-Ориентировочная структура для одного окружения:
-
 ```text
 /var/www/work-planner/
-  production/
-    frontend/
-    backend/
-    data/
-      app.sqlite
-    backups/
   staging/
-    frontend/
-    backend/
-    data/
-      app.sqlite
+    docker-compose.yml
+    data/app.sqlite
+    backups/
+  production/
+    docker-compose.yml
+    data/app.sqlite
     backups/
 ```
 
@@ -62,84 +56,74 @@ backend
 
 ## GitHub Actions
 
-Деплой выполняется через GitHub Actions отдельно для staging и production:
+Staging и production используют отдельные workflows:
 
-1. Установить Node.js LTS и pnpm.
-2. Установить зависимости.
-3. Запустить проверки.
-4. Собрать frontend и backend.
-5. Выбрать окружение деплоя.
-6. Скопировать артефакты на VPS по SSH.
-7. Применить миграции к базе выбранного окружения.
-8. Перезапустить соответствующий systemd-сервис.
+1. Установить Node.js и pnpm на runner.
+2. Выполнить `pnpm install --frozen-lockfile`.
+3. Выполнить `pnpm run ci`.
+4. Собрать Docker images для API и web.
+5. Опубликовать images в GHCR.
+6. Подключиться к VPS по SSH.
+7. Обновить `docker-compose.yml` выбранного окружения.
+8. Выполнить `docker compose pull`.
+9. Применить migrations через API image.
+10. Выполнить `docker compose up -d --remove-orphans`.
+11. Проверить `GET /api/health`.
 
-Сборка не должна выполняться на VPS.
-
-Staging и production не должны использовать одну SQLite-базу или один auth secret. После реализации attachments у окружений также должны быть разные папки uploads.
-
-Текущие шаблоны лежат в:
-
-- `infra/caddy/Caddyfile`;
-- `infra/systemd/work-planner-staging.service`;
-- `infra/systemd/work-planner-production.service`;
-- `.github/workflows/deploy-staging.yml`;
-- `.github/workflows/deploy-production.yml`.
-
-Пошаговая настройка VPS: [10-production-infra.md](10-production-infra.md).
-Backup/restore: [11-backups.md](11-backups.md).
+Staging запускается по push в `main`. Production запускается вручную через `workflow_dispatch`.
 
 ## Caddy
 
 Caddy отвечает за:
 
 - HTTPS;
-- отдачу frontend-статики;
-- reverse proxy `/api/*` на backend;
+- домены staging/production;
+- reverse proxy `/api/*` на backend container;
+- reverse proxy frontend traffic на web container;
 - лимит размера request body, когда появятся attachments.
 
-## systemd
-
-systemd отвечает за:
-
-- запуск backend после перезагрузки сервера;
-- перезапуск при падении;
-- логи через `journalctl`;
-- запуск от отдельного пользователя.
-
-Для staging и production используются разные сервисы:
+Порты на host:
 
 ```text
-work-planner-staging.service
-work-planner-production.service
+staging API:      127.0.0.1:3001
+staging web:      127.0.0.1:8081
+production API:   127.0.0.1:3000
+production web:   127.0.0.1:8080
 ```
+
+## Data isolation
+
+Staging и production не должны использовать одну SQLite-базу или один auth secret.
+
+```text
+/var/www/work-planner/staging/data/app.sqlite
+/var/www/work-planner/production/data/app.sqlite
+```
+
+В compose container видит базу как `/data/app.sqlite`, но host backup scripts работают с `/var/www/work-planner/<env>/data/app.sqlite`.
 
 ## Backups
 
-Backup выполняется вручную:
-
-1. Создать корректный архив SQLite database.
-2. Скачать архив с VPS.
-3. Хранить копию вне VPS.
+Backup выполняется вручную через `infra/scripts/backup-sqlite.sh` и `sqlite3 .backup`.
 
 В архив входят:
 
 - SQLite database;
-- конфигурация деплоя.
+- manifest;
+- env-файл, если процесс может его прочитать.
 
-После реализации attachments backup также должен включать uploads.
-
-Backup нельзя хранить только на этом же VPS. Для зрелого production нужно перейти на автоматический внешний backup.
-
-Для SQLite нужно использовать корректный backup-подход, а не простое копирование файла во время активной записи.
+Backup нельзя хранить только на этом же VPS.
 
 ## Monitoring
 
-Мониторинг:
+Минимальный мониторинг:
 
-- backend-логи через `journalctl`;
-- healthcheck endpoint `GET /api/health`.
+- `docker compose logs api --tail=100`;
+- `docker compose ps`;
+- `curl -fsS https://<domain>/api/health`;
+- host resources: `df -h`, `free -m`, `docker system df`.
 
-Минимальный ответ healthcheck:
+Минимальный healthcheck:
 
 ```json
 {

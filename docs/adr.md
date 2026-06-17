@@ -11,7 +11,7 @@
 
 2026-05-26
 
-- Production deploy ориентирован на VPS, Caddy, systemd и SQLite-файл.
+- Production deploy изначально был ориентирован на VPS, Caddy, systemd и SQLite-файл.
 - Сборка выполняется в GitHub Actions, а не на VPS.
 - Staging и production используют разные `DATABASE_PATH`, `AUTH_SECRET` и origin.
 - Backend healthcheck доступен на `GET /api/health`.
@@ -22,3 +22,9 @@
 - Детали активных задач хранятся в `docs/tasks/`, чтобы roadmap оставался коротким.
 - Завершенные задачи архивируются в `docs/archive/` с заполненным `Result`.
 - `docs/README.md` является основной точкой входа в документацию.
+
+2026-06-17
+
+- Production deploy переходит с `rsync` + systemd на Docker images в GHCR и Docker Compose на VPS.
+- Caddy остается на host и проксирует HTTPS traffic в frontend/backend containers.
+- SQLite остается на host filesystem и монтируется в API container как `/data/app.sqlite`.

@@ -2,11 +2,6 @@
 
 Актуальный рабочий план развития проекта. Детали каждой задачи лежат в `docs/tasks/`.
 
-## Current baseline
-
-Work Planner собран как monorepo: `apps/web` на React/Vite, `apps/api` на Hono, `packages/shared` для Zod-схем и pure helpers. Backend использует SQLite + Drizzle + Better Auth, frontend работает local-first через Dexie/outbox и синхронизацию с API.
-
-Production-направление зафиксировано как VPS deploy через Caddy, systemd, SQLite-файл и GitHub Actions. Детали лежат в [deployment.md](deployment.md), [10-production-infra.md](10-production-infra.md) и [11-backups.md](11-backups.md).
 
 ## Planned improvements
 

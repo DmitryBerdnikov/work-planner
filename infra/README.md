@@ -5,22 +5,24 @@
 ```text
 /var/www/work-planner/
   staging/
-    backend/current/
-    frontend/
+    docker-compose.yml
+    backup-sqlite.sh
     data/app.sqlite
     backups/
   production/
-    backend/current/
-    frontend/
+    docker-compose.yml
+    backup-sqlite.sh
     data/app.sqlite
     backups/
 ```
 
-Сервисы:
+Runtime:
 
 ```text
-work-planner-staging.service
-work-planner-production.service
+Caddy on host
+Docker Compose per environment
+SQLite file on host volume
+GHCR images built by GitHub Actions
 ```
 
 Домены-заглушки:
@@ -30,5 +32,6 @@ staging.example.com
 app.example.com
 ```
 
-Перед применением заменить домены, email, `AUTH_SECRET` и GitHub secrets/vars на реальные значения.
+Перед применением заменить домены, email, `AUTH_SECRET`, GHCR pull secrets и GitHub deploy secrets на реальные значения.
 
+`infra/systemd/` оставлен как legacy reference для rollback во время перехода, но основной deploy использует Docker Compose.

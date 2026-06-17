@@ -16,12 +16,12 @@
 ```text
 staging.example.com
   -> Caddy
-  -> work-planner-staging.service
+  -> Docker Compose staging containers
   -> /var/www/work-planner/staging/data/app.sqlite
 
 example.com
   -> Caddy
-  -> work-planner-production.service
+  -> Docker Compose production containers
   -> /var/www/work-planner/production/data/app.sqlite
 ```
 
@@ -40,7 +40,7 @@ staging.example.com   # staging
 
 ## Порты
 
-Backend-сервисы слушают разные localhost-порты:
+Backend containers публикуются на разные localhost-порты host:
 
 ```text
 production API: 127.0.0.1:3000
@@ -48,6 +48,13 @@ staging API:    127.0.0.1:3001
 ```
 
 Caddy проксирует запросы на нужный сервис по домену.
+
+Frontend containers публикуются отдельно:
+
+```text
+production web: 127.0.0.1:8080
+staging web:    127.0.0.1:8081
+```
 
 ## Данные
 

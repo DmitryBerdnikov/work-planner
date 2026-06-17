@@ -17,9 +17,9 @@ import { createRoute, OpenAPIHono, type OpenAPIHonoOptions } from "@hono/zod-ope
 import { and, asc, eq, gte, isNull, lte, type SQL } from "drizzle-orm";
 import { type Context } from "hono";
 import { type ZodType } from "zod";
-import { requireActiveProfile, type AppBindings } from "../auth/middleware";
-import { db } from "../db/client";
-import { appointments, clients } from "../db/schema";
+import { requireActiveProfile, type AppBindings } from "../auth/middleware.js";
+import { db } from "../db/client.js";
+import { appointments, clients } from "../db/schema.js";
 
 type AppointmentRow = typeof appointments.$inferSelect;
 type AppointmentRouteContext = Context<AppBindings>;

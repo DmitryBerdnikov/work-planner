@@ -18,9 +18,7 @@ staging.example.com {
 	}
 
 	handle {
-		root * /var/www/work-planner/staging/frontend
-		try_files {path} /index.html
-		file_server
+		reverse_proxy 127.0.0.1:8081
 	}
 }
 
@@ -40,9 +38,6 @@ app.example.com {
 	}
 
 	handle {
-		root * /var/www/work-planner/production/frontend
-		try_files {path} /index.html
-		file_server
+		reverse_proxy 127.0.0.1:8080
 	}
 }
-

@@ -8,7 +8,7 @@ Web application for logging work sessions: clients, appointments, amounts, notes
 |--------|----------|
 | Repository | Monorepo |
 | Package Manager | pnpm |
-| Runtime | Node.js LTS |
+| Runtime | Docker containers, Node.js LTS inside API image |
 | Frontend | React + Vite + TypeScript |
 | Design System | Figma reference, mobile-first, Tailwind CSS + shadcn/ui |
 | Client-side PWA / Offline Storage | IndexedDB via Dexie |
@@ -27,9 +27,9 @@ Web application for logging work sessions: clients, appointments, amounts, notes
 | Sessions | Secure HTTP-only cookies |
 | File Storage | Local filesystem (planned post-deployment for attachments) |
 | Reverse Proxy / HTTPS | Caddy |
-| Process Manager | systemd |
-| Deployment | GitHub Actions → VPS |
-| Monitoring | `journalctl` + `/api/health` |
+| Process Manager | Docker Compose |
+| Deployment | GitHub Actions → GHCR → VPS Docker Compose |
+| Monitoring | `docker compose logs` + `/api/health` |
 | Testing | Unit, integration, component, and E2E tests |
 
 
@@ -45,7 +45,7 @@ packages/
 
 docs/       # Architecture and technical documentation
 
-infra/      # Caddy, systemd, and GitHub Actions configuration examples
+infra/      # Caddy, Docker Compose, Nginx, env, and maintenance templates
 ```
 
 ## Commands

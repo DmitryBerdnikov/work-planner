@@ -7,6 +7,10 @@ concurrency:
   group: deploy-production
   cancel-in-progress: false
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -17,9 +21,9 @@ jobs:
       DEPLOY_USER: ${{ secrets.PRODUCTION_DEPLOY_USER }}
       DEPLOY_SSH_KEY: ${{ secrets.PRODUCTION_DEPLOY_SSH_KEY }}
       SSH_PORT: ${{ secrets.PRODUCTION_DEPLOY_PORT || '22' }}
-      SERVICE_NAME: work-planner-production
+      GHCR_READ_USERNAME: ${{ secrets.GHCR_READ_USERNAME }}
+      GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
       HEALTH_URL: http://127.0.0.1:3000/api/health
-      VITE_API_BASE_URL: ${{ vars.PRODUCTION_API_BASE_URL }}
 
     steps:
       - name: Checkout
@@ -47,7 +51,48 @@ jobs:
           test -n "$DEPLOY_HOST"
           test -n "$DEPLOY_USER"
           test -n "$DEPLOY_SSH_KEY"
-          test -n "$VITE_API_BASE_URL"
+          test -n "$GHCR_READ_USERNAME"
+          test -n "$GHCR_READ_TOKEN"
+
+      - name: Set image names
+        run: |
+          repository="${GITHUB_REPOSITORY,,}"
+          echo "API_IMAGE=ghcr.io/${repository}-api:production-${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "WEB_IMAGE=ghcr.io/${repository}-web:production-${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "API_IMAGE_LATEST=ghcr.io/${repository}-api:production-latest" >> "$GITHUB_ENV"
+          echo "WEB_IMAGE_LATEST=ghcr.io/${repository}-web:production-latest" >> "$GITHUB_ENV"
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.api
+          push: true
+          tags: |
+            ${{ env.API_IMAGE }}
+            ${{ env.API_IMAGE_LATEST }}
+
+      - name: Build and push web image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.web
+          push: true
+          build-args: |
+            VITE_API_BASE_URL=
+          tags: |
+            ${{ env.WEB_IMAGE }}
+            ${{ env.WEB_IMAGE_LATEST }}
 
       - name: Prepare SSH
         run: |
@@ -58,24 +103,27 @@ jobs:
       - name: Prepare remote directories
         run: |
           ssh -i ~/.ssh/work-planner -p "$SSH_PORT" -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
-            "mkdir -p '$APP_ROOT/backend/current' '$APP_ROOT/frontend' '$APP_ROOT/data' '$APP_ROOT/backups'"
+            "mkdir -p '$APP_ROOT/data' '$APP_ROOT/backups'"
 
-      - name: Upload backend release
+      - name: Upload compose and maintenance scripts
         run: |
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/work-planner -p $SSH_PORT -o StrictHostKeyChecking=accept-new" \
-            --exclude '.git/' \
-            --exclude '.data/' \
-            --exclude 'apps/web/dist/' \
-            ./ "$DEPLOY_USER@$DEPLOY_HOST:$APP_ROOT/backend/current/"
+          scp -i ~/.ssh/work-planner -P "$SSH_PORT" -o StrictHostKeyChecking=accept-new \
+            infra/docker/compose.production.yml "$DEPLOY_USER@$DEPLOY_HOST:$APP_ROOT/docker-compose.yml"
+          scp -i ~/.ssh/work-planner -P "$SSH_PORT" -o StrictHostKeyChecking=accept-new \
+            infra/scripts/backup-sqlite.sh "$DEPLOY_USER@$DEPLOY_HOST:$APP_ROOT/backup-sqlite.sh"
+          ssh -i ~/.ssh/work-planner -p "$SSH_PORT" -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
+            "chmod 750 '$APP_ROOT/backup-sqlite.sh'"
 
-      - name: Upload frontend
+      - name: Login remote Docker to GHCR
         run: |
-          rsync -az --delete \
-            -e "ssh -i ~/.ssh/work-planner -p $SSH_PORT -o StrictHostKeyChecking=accept-new" \
-            apps/web/dist/ "$DEPLOY_USER@$DEPLOY_HOST:$APP_ROOT/frontend/"
+          printf '%s\n' "$GHCR_READ_TOKEN" | ssh -i ~/.ssh/work-planner -p "$SSH_PORT" -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
+            "docker login ghcr.io -u '$GHCR_READ_USERNAME' --password-stdin"
 
-      - name: Migrate and restart
+      - name: Pull, migrate, restart and healthcheck
         run: |
           ssh -i ~/.ssh/work-planner -p "$SSH_PORT" -o StrictHostKeyChecking=accept-new "$DEPLOY_USER@$DEPLOY_HOST" \
-            "cd '$APP_ROOT/backend/current' && corepack enable && umask 0002 && DATABASE_PATH='$APP_ROOT/data/app.sqlite' pnpm db:migrate && (chmod 660 '$APP_ROOT'/data/app.sqlite* 2>/dev/null || true) && sudo systemctl restart '$SERVICE_NAME' && curl -fsS '$HEALTH_URL'"
+            "cd '$APP_ROOT' \
+              && API_IMAGE='$API_IMAGE' WEB_IMAGE='$WEB_IMAGE' docker compose -f docker-compose.yml pull \
+              && API_IMAGE='$API_IMAGE' WEB_IMAGE='$WEB_IMAGE' docker compose -f docker-compose.yml run --rm api node dist/db/migrate.js \
+              && API_IMAGE='$API_IMAGE' WEB_IMAGE='$WEB_IMAGE' docker compose -f docker-compose.yml up -d --remove-orphans \
+              && curl -fsS '$HEALTH_URL'"

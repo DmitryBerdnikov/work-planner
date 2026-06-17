@@ -1,0 +1,30 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    command: sh -c "node dist/db/migrate.js && node dist/server.js"
+    environment:
+      NODE_ENV: production
+      APP_ENV: staging
+      API_HOST: 0.0.0.0
+      API_PORT: 3000
+      API_BASE_URL: http://127.0.0.1:8080
+      WEB_ORIGIN: http://127.0.0.1:8080
+      DATABASE_PATH: /data/app.sqlite
+      AUTH_SECRET: local-docker-secret-change-me-32-chars
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./.data/docker:/data
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        VITE_API_BASE_URL: ""
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8080:80"

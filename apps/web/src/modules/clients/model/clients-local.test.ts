@@ -116,7 +116,7 @@ describe("local clients model", () => {
       updatedAt: restored.updatedAt,
       revision: 2
     });
-    const patches = await db.outbox.orderBy("clientTimestamp").toArray();
+    const patches = await db.outbox.orderBy("createdAt").toArray();
     expect(patches).toEqual([
       expect.objectContaining({
         entity: "client",

@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { isoDateTimeSchema } from "./common";
-import { profileStatusSchema } from "./profiles";
+import { isoDateTimeSchema } from "./common.js";
+import { profileStatusSchema } from "./profiles.js";
 
 export const apiErrorSchema = z.object({
   error: z.string(),

@@ -1,0 +1,24 @@
+services:
+  api:
+    image: ${API_IMAGE:?API_IMAGE is required}
+    restart: unless-stopped
+    env_file:
+      - /etc/work-planner/staging.env
+    environment:
+      NODE_ENV: production
+      APP_ENV: staging
+      API_HOST: 0.0.0.0
+      API_PORT: 3000
+      DATABASE_PATH: /data/app.sqlite
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - /var/www/work-planner/staging/data:/data
+
+  web:
+    image: ${WEB_IMAGE:?WEB_IMAGE is required}
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:8081:80"

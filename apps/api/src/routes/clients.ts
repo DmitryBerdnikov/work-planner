@@ -12,9 +12,9 @@ import { createRoute, OpenAPIHono, type OpenAPIHonoOptions } from "@hono/zod-ope
 import { and, asc, eq, isNull, or, sql, type AnyColumn, type SQL } from "drizzle-orm";
 import { type Context } from "hono";
 import { z, type ZodType } from "zod";
-import { requireActiveProfile, type AppBindings } from "../auth/middleware";
-import { db } from "../db/client";
-import { clients } from "../db/schema";
+import { requireActiveProfile, type AppBindings } from "../auth/middleware.js";
+import { db } from "../db/client.js";
+import { clients } from "../db/schema.js";
 
 type ClientRow = typeof clients.$inferSelect;
 type ClientRouteContext = Context<AppBindings>;

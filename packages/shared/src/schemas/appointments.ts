@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isoDateTimeSchema, moneyAmountSchema, uuidSchema } from "./common";
+import { isoDateTimeSchema, moneyAmountSchema, uuidSchema } from "./common.js";
 
 export const appointmentTypeSchema = z.enum(["work", "personal"]);
 export type AppointmentType = z.infer<typeof appointmentTypeSchema>;

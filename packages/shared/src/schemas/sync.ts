@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-import { appointmentSchema } from "./appointments";
-import { clientSchema } from "./clients";
-import { isoDateTimeSchema, uuidSchema } from "./common";
+import { appointmentSchema } from "./appointments.js";
+import { clientSchema } from "./clients.js";
+import { isoDateTimeSchema, uuidSchema } from "./common.js";
 
 export const syncEntitySchema = z.enum(["client", "appointment"]);
 export type SyncEntity = z.infer<typeof syncEntitySchema>;

@@ -1,0 +1,13 @@
+.git
+.data
+.pnpm-store
+.worktrees
+node_modules
+**/node_modules
+**/dist
+apps/api/.data
+apps/web/.vite
+coverage
+compose*.yml
+infra/systemd
+docs/archive

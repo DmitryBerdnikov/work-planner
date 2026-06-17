@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isoDateTimeSchema, uuidSchema } from "./common";
+import { isoDateTimeSchema, uuidSchema } from "./common.js";
 
 const clientTextFieldSchema = z.string().trim();
 

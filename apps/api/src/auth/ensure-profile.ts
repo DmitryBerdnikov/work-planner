@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../db/client";
-import { profiles } from "../db/schema";
+import { db } from "../db/client.js";
+import { profiles } from "../db/schema.js";
 
 export async function ensureProfileForUser(userId: string, email: string) {
   const existing = await db.query.profiles.findFirst({

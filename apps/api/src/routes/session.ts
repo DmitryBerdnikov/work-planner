@@ -2,10 +2,10 @@ import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { eq } from "drizzle-orm";
 import { apiErrorSchema, sessionResponseSchema } from "@work-planner/shared";
 import { type ZodType } from "zod";
-import { ensureProfileForUser } from "../auth/ensure-profile";
-import { requireSession, type AppBindings } from "../auth/middleware";
-import { db } from "../db/client";
-import { profiles } from "../db/schema";
+import { ensureProfileForUser } from "../auth/ensure-profile.js";
+import { requireSession, type AppBindings } from "../auth/middleware.js";
+import { db } from "../db/client.js";
+import { profiles } from "../db/schema.js";
 
 export const sessionRoutes = new OpenAPIHono<AppBindings>();
 

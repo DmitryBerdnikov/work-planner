@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { isoDateTimeSchema, uuidSchema } from "./common";
+import { isoDateTimeSchema, uuidSchema } from "./common.js";
 
 export const profileStatusSchema = z.enum(["pending", "active", "blocked"]);
 export type ProfileStatus = z.infer<typeof profileStatusSchema>;

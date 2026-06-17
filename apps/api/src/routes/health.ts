@@ -1,6 +1,6 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 import { healthResponseSchema } from "@work-planner/shared";
-import { env } from "../config/env";
+import { env } from "../config/env.js";
 
 export const healthRoutes = new OpenAPIHono();
 const healthResponseOpenApiSchema = healthRoutes.openAPIRegistry.register("HealthResponse", healthResponseSchema);

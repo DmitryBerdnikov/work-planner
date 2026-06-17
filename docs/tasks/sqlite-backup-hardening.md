@@ -10,7 +10,7 @@ Backup сейчас описан как ручной процесс. Нужно 
 
 ## Current Context
 
-Основной документ: `docs/11-backups.md`. Production database хранится как SQLite-файл на VPS.
+Основной документ: `docs/backups.md`. Production database хранится как SQLite-файл на VPS.
 
 ## Plan
 

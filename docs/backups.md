@@ -5,8 +5,8 @@ SQLite backup нельзя делать простым копированием 
 ## Create backup on VPS
 
 ```bash
-sudo -u work-planner /var/www/work-planner/staging/backend/current/infra/scripts/backup-sqlite.sh staging
-sudo -u work-planner /var/www/work-planner/production/backend/current/infra/scripts/backup-sqlite.sh production
+sudo -u deploy /var/www/work-planner/staging/backup-sqlite.sh staging
+sudo -u deploy /var/www/work-planner/production/backup-sqlite.sh production
 ```
 
 Архив создается в:
@@ -27,16 +27,17 @@ scp deploy@<host>:/var/www/work-planner/production/backups/work-planner-producti
 
 ## Restore checklist
 
-1. Остановить сервис:
+1. Остановить containers:
 
 ```bash
-sudo systemctl stop work-planner-production
+cd /var/www/work-planner/production
+docker compose stop
 ```
 
 2. Сохранить текущую базу перед restore:
 
 ```bash
-sudo -u work-planner cp /var/www/work-planner/production/data/app.sqlite /var/www/work-planner/production/data/app.sqlite.before-restore
+sudo -u deploy cp /var/www/work-planner/production/data/app.sqlite /var/www/work-planner/production/data/app.sqlite.before-restore
 ```
 
 3. Распаковать архив во временную директорию.
@@ -44,13 +45,14 @@ sudo -u work-planner cp /var/www/work-planner/production/data/app.sqlite /var/ww
 4. Заменить базу:
 
 ```bash
-sudo -u work-planner install -m 600 app-YYYYMMDDTHHMMSSZ.sqlite /var/www/work-planner/production/data/app.sqlite
+sudo -u deploy install -m 600 app-YYYYMMDDTHHMMSSZ.sqlite /var/www/work-planner/production/data/app.sqlite
 ```
 
-5. Запустить сервис и проверить health:
+5. Запустить containers и проверить health:
 
 ```bash
-sudo systemctl start work-planner-production
+cd /var/www/work-planner/production
+docker compose up -d
 curl -fsS https://app.example.com/api/health
 ```
 
