@@ -127,4 +127,4 @@ jobs:
               && API_IMAGE='$API_IMAGE' WEB_IMAGE='$WEB_IMAGE' docker compose -f docker-compose.yml pull \
               && API_IMAGE='$API_IMAGE' WEB_IMAGE='$WEB_IMAGE' docker compose -f docker-compose.yml run --rm api node dist/db/migrate.js \
               && API_IMAGE='$API_IMAGE' WEB_IMAGE='$WEB_IMAGE' docker compose -f docker-compose.yml up -d --remove-orphans \
-              && curl -fsS '$HEALTH_URL'"
+              && for attempt in \$(seq 1 5); do curl -fsS '$HEALTH_URL' && exit 0; sleep 5; done; exit 1"
